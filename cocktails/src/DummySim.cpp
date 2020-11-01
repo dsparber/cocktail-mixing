@@ -1,4 +1,4 @@
-#include "DummySim.h"
+#include "../include/DummySim.h"
 
 using namespace std;
 /*

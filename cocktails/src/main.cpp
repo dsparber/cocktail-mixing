@@ -1,6 +1,6 @@
 #include <igl/writeOFF.h>
 #include <thread>
-#include "DummySim.h"
+#include "../include/DummySim.h"
 #include "Gui.h"
 #include "Simulator.h"
 
