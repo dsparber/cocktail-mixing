@@ -24,6 +24,12 @@ bool SphSimulation::advance() {
     // - particles
     // - neighborSearch->getNeighbors(Eigen::Vector3d& position, double radius)
 
+    // Dummy code
+    auto dt = 1. / 10;
+    for (auto& particle : particles) {
+        particle.position += particle.velocity * dt;
+    }
+
 
     // Needs to be called to update particle related data
     ParticleSimulation::postAdvance();

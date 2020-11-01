@@ -8,6 +8,7 @@ class Particle {
 public:
     Eigen::Vector3d position;
     Eigen::Vector3d velocity;
+    Eigen::Vector3d color;
 };
 
 
