@@ -42,12 +42,13 @@ bool SphSimulation::advance() {
 }
 
 void SphSimulation::updateDensityandPressure() {
+    std::cout << "Neighborhood: ";
     for(Particle& particle : m_particles) {
         
         particle.m_density = 0.0;
         
         std::vector<Particle*> neighborhood = m_neighborSearch->getNeighbors(particle.m_pos, m_kernelRadius);
-        
+        std::cout << neighborhood.size()<<" ";
         // density 
         for(Particle* neighbor : neighborhood) {
                 Eigen::Vector3d diff = particle.m_pos - neighbor->m_pos; 
@@ -59,6 +60,9 @@ void SphSimulation::updateDensityandPressure() {
         particle.m_pressure = m_stiffness * (particle.m_density - m_density_0);
 
     }
+    std::cout << "\nDensity: " <<  m_particles[0].m_density << std::endl;
+    std::cout << "Pressure: " <<  m_particles[0].m_pressure << std::endl;
+
 }
 
 
@@ -87,6 +91,7 @@ void SphSimulation::updateForce() {
         particle.m_acc = (f_pressure + f_viscosity + f_external) / particle.m_density;
 
     }
+    std::cout << "acc" << m_particles[0].m_acc.transpose() << std::endl;
     
 }
 

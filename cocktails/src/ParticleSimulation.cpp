@@ -16,17 +16,20 @@ void ParticleSimulation::init() {
 	int n = 4;
     Eigen::Vector3d start_pos(2,2,2);
     double spacing = 0.1;
+    double V = pow(spacing, 3);
 	m_particles = std::vector<Particle>();
 	m_particles.reserve(n * n * n);
 	for (int x = 0; x < n; ++x) {
         for (int y = 0; y < n; ++y) {
             for (int z = 0; z < n; ++z) {
                 Particle particle;
+                particle.m_mass = 1000.0 * V;
                 particle.m_pos << x, y, z;
                 particle.m_pos *= spacing;
                 particle.m_pos += start_pos;
                 particle.m_color << 1. * x / n, 1. * y / n, 1. * z / n;
                 m_particles.push_back(particle);
+                m_neighborSearch->addParticle(&m_particles.back());
             }
         }
 	}

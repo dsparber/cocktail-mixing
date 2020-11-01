@@ -1,5 +1,6 @@
 #include "../include/UniformGridNeighborSearch.h"
 #include <algorithm>
+#include <iostream>
 
 UniformGridNeighborSearch::UniformGridNeighborSearch(double gridWidth) : gridWidth(gridWidth) {}
 
@@ -8,7 +9,6 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Eigen::Vector3d& 
     std::tie(x, y, z) = getIndex(position);
 
     int delta = int(ceil(radius / gridWidth));
-
     std::vector<Particle*> neighbors;
     for (int dx = -delta; dx <= delta; ++dx) {
         auto gridX = uniformGrid.find(x);
