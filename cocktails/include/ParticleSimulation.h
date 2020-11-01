@@ -4,9 +4,9 @@
 
 class ParticleSimulation : public Simulation {
 public:
-	ParticleSimulation();
+    explicit ParticleSimulation(double gridWidth);
 
-	void init() override;
+    void init() override;
 	void resetMembers() override;
 	void updateRenderGeometry() override;
 	bool advance() override;
@@ -16,7 +16,7 @@ public:
 
 protected:
     std::vector<Particle> particles;
-    UniformGridNeighborSearch neighborSearch;
+    NeighborSearch* neighborSearch;
 
 private:
 	Eigen::MatrixXd m_V;  // vertex positions

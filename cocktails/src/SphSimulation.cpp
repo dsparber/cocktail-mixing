@@ -1,6 +1,6 @@
 #include "../include/SphSimulation.h"
 
-SphSimulation::SphSimulation() : ParticleSimulation() { }
+SphSimulation::SphSimulation() : ParticleSimulation(kernelRadius) { }
 
 void SphSimulation::init() {
 	ParticleSimulation::init();
@@ -22,7 +22,7 @@ bool SphSimulation::advance() {
     // TODO @vyang: implement SphSimulation here
     // You can use the following:
     // - particles
-    // - neighborSearch.getNeighbors(Eigen::Vector3d& position, double radius)
+    // - neighborSearch->getNeighbors(Eigen::Vector3d& position, double radius)
 
 
     // Needs to be called to update particle related data

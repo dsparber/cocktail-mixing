@@ -4,8 +4,8 @@ using namespace std;
 /*
  * Example simulation that changes the colors of a cube.
  */
-ParticleSimulation::ParticleSimulation() : Simulation() {
-	init();
+ParticleSimulation::ParticleSimulation(double gridWidth) : Simulation() {
+	neighborSearch = new UniformGridNeighborSearch(gridWidth);
 }
 
 void ParticleSimulation::init() {

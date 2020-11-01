@@ -12,5 +12,6 @@ public:
 	bool advance() override;
 
 private:
+    constexpr static const double kernelRadius = 1;
 
 };
