@@ -35,9 +35,9 @@ source_group("Library Files" FILES ${LIBFILES})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../include)
 
 # Add your project files
-file(GLOB SRCFILES *.cpp)
-file(GLOB HFILES *.h)
+file(GLOB SRCFILES src/*.cpp)
+file(GLOB HFILES include/*.h)
 
 add_definitions(-DIGL_VIEWER_VIEWER_QUIET)
-add_executable(${PROJECT_NAME} ${SRCFILES} ${HFILES} ${LIBFILES} )
+add_executable(${PROJECT_NAME} ${SRCFILES} ${HFILES} ${LIBFILES})
 target_link_libraries(${PROJECT_NAME} igl::core igl::opengl_glfw igl::opengl_glfw_imgui)
