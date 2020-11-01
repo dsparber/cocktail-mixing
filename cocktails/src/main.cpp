@@ -1,30 +1,29 @@
 #include <igl/writeOFF.h>
-#include <thread>
-#include "../include/DummySim.h"
 #include "Gui.h"
-#include "Simulator.h"
+#include "../include/SphSimulation.h"
 
 /*
  * This class is a GUI for our dummy simulation. It extends the basic GUI
  * defined in Gui.h. We could add more controls and visuals here, but we don't
  * need any additional functionality for this dummy simulation.
  */
-class DummyGui : public Gui {
+class MainGui : public Gui {
 public:
-	DummySim *p_dummySim = NULL;  // pointer to the dummy simulation
+	Simulation *simulation = nullptr;
 
-	DummyGui() {
-		// create a new dummy simulation
-		p_dummySim = new DummySim();
+	MainGui() {
+		// create simulation
+		simulation = new SphSimulation();
+		simulation->init();
 
 		// set this simulation as the simulation that is running in our GUI
-		setSimulation(p_dummySim);
+		setSimulation(simulation);
 
 		// start the GUI
 		start();
 	}
 
-	virtual void updateSimulationParameters() override {
+	void updateSimulationParameters() override {
 		// We don't have any simulation parameters to update periodically so we
 		// don't need to do anything here
 	};
@@ -32,7 +31,7 @@ public:
 
 int main(int argc, char *argv[]) {
 	// create a new instance of the GUI for the dummy simulation
-	new DummyGui();
+	new MainGui();
 
 	return 0;
 }

@@ -1,14 +1,14 @@
-#include "../include/DummySim.h"
+#include "../include/ParticleSimulation.h"
 
 using namespace std;
 /*
  * Example simulation that changes the colors of a cube.
  */
-DummySim::DummySim() : Simulation() {
+ParticleSimulation::ParticleSimulation() : Simulation() {
 	init();
 }
 
-void DummySim::init() {
+void ParticleSimulation::init() {
 	// create a cube on [-1,1]^3
 	// vertices
 	m_V.resize(8, 3);
@@ -27,18 +27,18 @@ void DummySim::init() {
 	reset();
 }
 
-void DummySim::resetMembers() {
+void ParticleSimulation::resetMembers() {
 	m_C.setZero();
 	m_C.col(0).setOnes();
 }
 
-void DummySim::updateRenderGeometry() {
+void ParticleSimulation::updateRenderGeometry() {
 	m_renderV = m_V;
 	m_renderF = m_F;
 	m_renderC = m_C;
 }
 
-bool DummySim::advance() {
+bool ParticleSimulation::advance() {
 	// do next step of some color animation
 	int speed = 60;
 	int decColor = (m_step / speed) % 3;
@@ -54,7 +54,11 @@ bool DummySim::advance() {
 	return false;
 }
 
-void DummySim::renderRenderGeometry(
+void ParticleSimulation::postAdvance() {
+    // TODO
+}
+
+void ParticleSimulation::renderRenderGeometry(
 	igl::opengl::glfw::Viewer &viewer) {
 	viewer.data().set_mesh(m_renderV, m_renderF);
 	viewer.data().set_colors(m_renderC);

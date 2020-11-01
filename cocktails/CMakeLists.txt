@@ -39,5 +39,5 @@ file(GLOB SRCFILES src/*.cpp)
 file(GLOB HFILES include/*.h)
 
 add_definitions(-DIGL_VIEWER_VIEWER_QUIET)
-add_executable(${PROJECT_NAME} ${SRCFILES} ${HFILES} ${LIBFILES})
+add_executable(${PROJECT_NAME} src/main.cpp ${SRCFILES} ${HFILES} ${LIBFILES})
 target_link_libraries(${PROJECT_NAME} igl::core igl::opengl_glfw igl::opengl_glfw_imgui)
