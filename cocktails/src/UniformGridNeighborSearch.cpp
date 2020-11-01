@@ -27,7 +27,7 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Eigen::Vector3d& 
                 }
                 auto particles = gridXYZ->second;
                 for (auto particle : particles) {
-                    if ((position - particle->position).norm() <= radius) {
+                    if ((position - particle->m_pos).norm() <= radius) {
                         neighbors.push_back(particle);
                     }
                 }
@@ -39,7 +39,7 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Eigen::Vector3d& 
 
 void UniformGridNeighborSearch::addParticle(Particle *particle) {
     int x, y, z;
-    std::tie(x, y, z) = getIndex(particle->position);
+    std::tie(x, y, z) = getIndex(particle->m_pos);
 
     uniformGrid[x][y][z].push_back(particle);
     particleIndex[particle] = {x, y, z};
@@ -49,7 +49,7 @@ void UniformGridNeighborSearch::updateParticle(Particle *particle) {
 
     // Remove old
     int x, y, z;
-    std::tie(x, y, z) = getIndex(particle->position);
+    std::tie(x, y, z) = getIndex(particle->m_pos);
     auto particles = uniformGrid[x][y][z];
     particles.erase(std::remove(particles.begin(), particles.end(), particle), particles.end());
 

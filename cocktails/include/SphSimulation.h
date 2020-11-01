@@ -12,6 +12,16 @@ public:
 	bool advance() override;
 
 private:
-    constexpr static const double kernelRadius = 1;
+    void updateDensityandPressure();
+	void updateForce();
+	void updateVelocityandPosition();
+
+	constexpr static const double m_kernelRadius = 0.2;
+	constexpr static const double m_gridWidth = 4.0;
+
+	double m_stiffness;
+	double m_density_0;
+	double m_h;
+	double m_viscosity;
 
 };

@@ -95,10 +95,10 @@ void Gui::start() {
 		return scrollCallback(viewer, delta_y);
 	};
 
-	m_viewer.callback_mouse_down = [&](igl::opengl::glfw::Viewer &viewer,
+/* 	m_viewer.callback_mouse_down = [&](igl::opengl::glfw::Viewer &viewer,
 		int button, int modifier) {
 		return mouseCallback(viewer, menu, button, modifier);
-	};
+	}; */
 
 	// start viewer
 	m_viewer.launch();
