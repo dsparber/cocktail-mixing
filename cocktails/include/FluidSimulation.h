@@ -3,12 +3,13 @@
 
 #include "Simulation.h"
 #include "Particle.h"
-#include "UniformGridNeighborSearch.h"
+#include "NeighborSearch.h"
 #include "Scene.h"
+#include "Fluid.h"
 
-class ParticleSimulation : public Simulation {
+class FluidSimulation : public Simulation {
 public:
-    explicit ParticleSimulation(double gridWidth);
+    explicit FluidSimulation(double gridWidth);
 
     virtual void init() override;
 	virtual void resetMembers() override;
@@ -17,17 +18,17 @@ public:
 	void updateRenderGeometry() override;
     void renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) override;
 
-    void initParticles();
-	void postAdvance();
+    void initFluids();
+	void updateNeighbors();
 
 protected:
-    std::vector<Particle> m_particles;
+    std::vector<Fluid> m_fluids;
     NeighborSearch* m_neighborSearch;
 	Scene* m_scene;
 
 private:
 	Eigen::MatrixXd V;  // Vertex positions
-	Eigen::MatrixXi F;  // Faces (indices of vertices)
+    Eigen::MatrixXi F;  // Faces (indices of vertices)
 	Eigen::MatrixXd C;  // Colors per face
 };
 

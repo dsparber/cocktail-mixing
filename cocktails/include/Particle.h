@@ -6,15 +6,8 @@
 class Particle {
 
 public:
-    Particle() { 
-        m_mass = 1.0;
-        m_pressure = 0.0;
-        m_density = 0.0;
-        m_pos.setZero();
-        m_vel.setZero();
-        m_acc.setZero();
-        m_color << 1, 0,  0;
-    }
+    Particle() : m_mass(1), m_pressure(0), m_density(1), m_pos(0), m_vel(0), m_acc(0), m_color(0) { }
+
     double m_mass;
     double m_pressure;
     double m_density;
