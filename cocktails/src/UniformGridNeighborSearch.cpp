@@ -49,7 +49,7 @@ void UniformGridNeighborSearch::updateParticle(Particle *particle) {
 
     // Remove old
     int x, y, z;
-    std::tie(x, y, z) = getIndex(particle->m_pos);
+    std::tie(x, y, z) = particleIndex[particle];
     auto particles = uniformGrid[x][y][z];
     particles.erase(std::remove(particles.begin(), particles.end(), particle), particles.end());
 
