@@ -1,3 +1,6 @@
+#ifndef PBS_SPH_SIMULATION_H
+#define PBS_SPH_SIMULATION_H
+
 #include "ParticleSimulation.h"
 
 /*
@@ -12,15 +15,17 @@ public:
 	bool advance() override;
 
 private:
-    void updateDensityandPressure();
+    void updateDensityAndPressure();
 	void updateForce();
-	void updateVelocityandPosition();
+	void updateVelocityAndPosition();
 
 	double m_kernelRadius = 0.2;
-	constexpr static const double m_gridWidth = 4.0;
+	constexpr static const double m_gridWidth = 0.2; // Width of a cell in the uniform grid, ideally equal to kernel Radius
 
 	double m_stiffness;
 	double m_density_0;
 	double m_viscosity;
 
 };
+
+#endif

@@ -1,5 +1,5 @@
-#include "../include/SphSimulation.h"
 #include "../include/Kernels.h"
+#include "../include/SphSimulation.h"
 
 SphSimulation::SphSimulation() : ParticleSimulation(m_gridWidth) {
     m_stiffness = 1000.0;
@@ -25,39 +25,25 @@ void SphSimulation::resetMembers() {
 bool SphSimulation::advance() {
     ParticleSimulation::advance();
 
-    // TODO @vyang: implement SphSimulation here
-    // You can use the following:
-    // - particles
-    // - neighborSearch->getNeighbors(Eigen::Vector3d& position, double radius)
-    updateDensityandPressure();
-
+    updateDensityAndPressure();
     updateForce();
-
-    updateVelocityandPosition();
+    updateVelocityAndPosition();
 
     // Needs to be called to update particle related data
     ParticleSimulation::postAdvance();
 	return false;
 }
 
-void SphSimulation::updateDensityandPressure() {
-    for(Particle& particle : m_particles) {
+void SphSimulation::updateDensityAndPressure() {
+    for(auto& particle : m_particles) {
         
         particle.m_density = 0.0;
         
-        // std::vector<Particle*> neighborhood = m_neighborSearch->getNeighbors(particle.m_pos, m_kernelRadius);
-        std::vector<Particle*> neighborhood;
+        std::vector<Particle*> neighborhood = m_neighborSearch->getNeighbors(&particle, m_kernelRadius);
 
-        for(Particle& neighbor : m_particles) {
-            if ((neighbor.m_pos - particle.m_pos).norm() < m_kernelRadius && &neighbor != &particle) {
-                neighborhood.push_back(&neighbor);
-            }
-        }        
-        
-        
         // density 
         for(Particle* neighbor : neighborhood) {
-                Eigen::Vector3d diff = particle.m_pos - neighbor->m_pos; 
+                Eigen::Vector3d diff = particle.m_pos - neighbor->m_pos;
                 double r2 = diff.dot(diff);
                 double delta = neighbor->m_mass * kernels::Wpoly6(r2, m_kernelRadius);
                 particle.m_density += delta;
@@ -67,20 +53,14 @@ void SphSimulation::updateDensityandPressure() {
         particle.m_pressure = m_stiffness * (particle.m_density - m_density_0);
 
     }
-
 }
 
 
 void SphSimulation::updateForce() {
-    for(Particle& particle : m_particles) {
+    for(auto& particle : m_particles) {
 
-        // std::vector<Particle*> neighborhood = m_neighborSearch->getNeighbors(particle.m_pos, m_kernelRadius);    
-        std::vector<Particle*> neighborhood;
-        for(Particle& neighbor : m_particles) {
-            if ((neighbor.m_pos - particle.m_pos).norm() < m_kernelRadius && &neighbor != &particle) {
-                neighborhood.push_back(&neighbor);
-            }
-        }
+        std::vector<Particle*> neighborhood = m_neighborSearch->getNeighbors(&particle, m_kernelRadius);
+
         // TODO: implement surface tension
         Eigen::Vector3d f_pressure, f_viscosity, f_external;
         f_pressure.setZero();
@@ -105,11 +85,11 @@ void SphSimulation::updateForce() {
 }
 
 
-void SphSimulation::updateVelocityandPosition() {
-    for(Particle& particle : m_particles) {
+void SphSimulation::updateVelocityAndPosition() {
+    for(auto& particle : m_particles) {
         particle.m_vel += m_dt * particle.m_acc;
         Eigen::Vector3d nextPosition = particle.m_pos + m_dt * particle.m_vel;
-        if(m_box->outOfBoundary(particle.m_pos)){
+        if(m_scene->outOfBoundary(particle.m_pos)){
             // move into box
             // reflect velocity
             particle.m_vel *= -1;

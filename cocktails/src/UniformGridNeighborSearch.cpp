@@ -1,17 +1,18 @@
 #include "../include/UniformGridNeighborSearch.h"
 #include <algorithm>
-#include <iostream>
 
 UniformGridNeighborSearch::UniformGridNeighborSearch(double gridWidth) : gridWidth(gridWidth) {}
 
-std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Eigen::Vector3d& position, double radius) const {
+std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Particle* particle, double radius) const {
     int x, y, z;
-    std::tie(x, y, z) = getIndex(position);
+    std::tie(x, y, z) = getIndex(particle->m_pos);
+
+    double epsilon = gridWidth / 10000;
 
     int delta = int(ceil(radius / gridWidth));
     std::vector<Particle*> neighbors;
     for (int dx = -delta; dx <= delta; ++dx) {
-        auto gridX = uniformGrid.find(x);
+        auto gridX = uniformGrid.find(x + dx);
         if (gridX == uniformGrid.end()) {
             continue;
         }
@@ -21,13 +22,13 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Eigen::Vector3d& 
                 continue;
             }
             for (int dz = -delta; dz <= delta; ++dz) {
-                auto gridXYZ = gridXY->second.find(y + dy);
+                auto gridXYZ = gridXY->second.find(z + dz);
                 if (gridXYZ == gridXY->second.end()) {
                     continue;
                 }
-                auto particles = gridXYZ->second;
-                for (auto particle : particles) {
-                    if ((position - particle->m_pos).norm() <= radius) {
+                for (auto neighbor : gridXYZ->second) {
+                    auto distance = (neighbor->m_pos - particle->m_pos).norm();
+                    if (distance <= radius + epsilon && particle != neighbor) {
                         neighbors.push_back(particle);
                     }
                 }
@@ -42,19 +43,6 @@ void UniformGridNeighborSearch::addParticle(Particle *particle) {
     std::tie(x, y, z) = getIndex(particle->m_pos);
 
     uniformGrid[x][y][z].push_back(particle);
-    particleIndex[particle] = {x, y, z};
-}
-
-void UniformGridNeighborSearch::updateParticle(Particle *particle) {
-
-    // Remove old
-    int x, y, z;
-    std::tie(x, y, z) = particleIndex[particle];
-    auto particles = uniformGrid[x][y][z];
-    particles.erase(std::remove(particles.begin(), particles.end(), particle), particles.end());
-
-    // Add new
-    addParticle(particle);
 }
 
 std::tuple<int, int, int> UniformGridNeighborSearch::getIndex(Eigen::Vector3d& position) const {
@@ -62,6 +50,10 @@ std::tuple<int, int, int> UniformGridNeighborSearch::getIndex(Eigen::Vector3d& p
     int y = int(floor(position(1) / gridWidth));
     int z = int(floor(position(2) / gridWidth));
     return {x, y, z};
+}
+
+void UniformGridNeighborSearch::reset() {
+    uniformGrid.clear();
 }
 
 

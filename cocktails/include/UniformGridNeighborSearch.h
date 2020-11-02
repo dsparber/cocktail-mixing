@@ -1,6 +1,5 @@
-#ifndef PBS_UNIFORMGRIDNEIGHBORSEARCH_H
-#define PBS_UNIFORMGRIDNEIGHBORSEARCH_H
-
+#ifndef PBS_UNIFORM_GRID_NEIGHBOR_SEARCH_H
+#define PBS_UNIFORM_GRID_NEIGHBOR_SEARCH_H
 
 #include <map>
 #include <tuple>
@@ -11,20 +10,19 @@ class UniformGridNeighborSearch : public NeighborSearch {
 public:
     UniformGridNeighborSearch(double gridWidth);
 
-    std::vector<Particle*> getNeighbors(Eigen::Vector3d& position, double radius) const override;
+    void reset() override;
+
+    std::vector<Particle*> getNeighbors(Particle* particle, double radius) const override;
 
     void addParticle(Particle *particle) override;
-
-    void updateParticle(Particle *particle) override;
 
 private:
     double gridWidth;
 
     std::map<int, std::map<int, std::map<int, std::vector<Particle*>>>> uniformGrid;
-    std::map<Particle*, std::tuple<int, int, int>> particleIndex;
 
     std::tuple<int, int, int> getIndex(Eigen::Vector3d& position) const;
 };
 
 
-#endif //PBS_UNIFORMGRIDNEIGHBORSEARCH_H
+#endif //PBS_UNIFORM_GRID_NEIGHBOR_SEARCH_H
