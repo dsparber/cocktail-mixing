@@ -16,12 +16,11 @@ private:
 	void updateForce();
 	void updateVelocityandPosition();
 
-	constexpr static const double m_kernelRadius = 0.2;
+	double m_kernelRadius = 0.2;
 	constexpr static const double m_gridWidth = 4.0;
 
 	double m_stiffness;
 	double m_density_0;
-	double m_h;
 	double m_viscosity;
 
 };

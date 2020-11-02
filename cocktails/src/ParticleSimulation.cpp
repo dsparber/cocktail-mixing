@@ -13,7 +13,7 @@ ParticleSimulation::ParticleSimulation(double gridWidth) : Simulation() {
 void ParticleSimulation::init() {
 
 	// Create particles
-	int n = 4;
+	int n = 6;
     Eigen::Vector3d start_pos(2,2,2);
     double spacing = 0.1;
     double V = pow(spacing, 3);
