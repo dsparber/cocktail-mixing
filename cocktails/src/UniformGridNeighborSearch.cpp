@@ -28,7 +28,7 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Particle* particl
                 }
                 for (auto neighbor : gridXYZ->second) {
                     auto distance = (neighbor->m_pos - particle->m_pos).norm();
-                    if (distance <= radius + epsilon && particle != neighbor) {
+                    if (distance <= radius + epsilon) {
                         neighbors.push_back(particle);
                     }
                 }

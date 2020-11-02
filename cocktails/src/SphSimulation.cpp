@@ -1,5 +1,6 @@
 #include "../include/Kernels.h"
 #include "../include/SphSimulation.h"
+#include "../include/Constants.h"
 
 SphSimulation::SphSimulation() : ParticleSimulation(m_gridWidth) {
     m_stiffness = 1000.0;
@@ -78,7 +79,7 @@ void SphSimulation::updateForce() {
 
         f_pressure *= - particle.m_mass / particle.m_density;
         f_viscosity *= - particle.m_mass * m_viscosity;
-        f_external = Eigen::Vector3d(0.0, -1.0, 0.0) * particle.m_mass; // gravity
+        f_external = constants::g * particle.m_mass; // gravity
         particle.m_acc = (f_pressure + f_viscosity + f_external) / particle.m_density;
 
     }
@@ -90,7 +91,7 @@ void SphSimulation::updateVelocityAndPosition() {
     for(auto& particle : m_particles) {
         particle.m_vel += m_dt * particle.m_acc;
         Eigen::Vector3d nextPosition = particle.m_pos + m_dt * particle.m_vel;
-        if(m_scene->outOfBoundary(particle.m_pos)){
+        if(m_scene->outOfBoundary(nextPosition)){
             // move into box
             // reflect velocity
             particle.m_vel *= -1;

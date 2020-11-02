@@ -1,11 +1,13 @@
 #include "../include/ParticleSimulation.h"
+#include "../include/BruteForceNeighborSearch.h"
 
 using namespace std;
 /*
  * Example simulation that changes the colors of a cube.
  */
 ParticleSimulation::ParticleSimulation(double gridWidth) : Simulation() {
-	m_neighborSearch = new UniformGridNeighborSearch(gridWidth);
+    m_neighborSearch = new UniformGridNeighborSearch(gridWidth);
+    //m_neighborSearch = new BruteForceNeighborSearch();
     m_scene = new Scene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(4, 4, 4));
 
 }
