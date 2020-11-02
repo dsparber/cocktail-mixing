@@ -36,7 +36,8 @@ bool SphSimulation::advance() {
 
 void SphSimulation::updateDensityAndPressure() {
     for(auto& particle : m_particles) {
-        
+
+        // TODO: Problem if particle has no neighbors, than density is zero and later division by zero
         particle.m_density = 0.0;
         
         std::vector<Particle*> neighborhood = m_neighborSearch->getNeighbors(&particle, m_kernelRadius);
