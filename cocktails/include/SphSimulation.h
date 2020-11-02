@@ -16,7 +16,7 @@ private:
 	void updateForce();
 	void updateVelocityAndPosition();
 
-	double m_kernelRadius = 0.2;
+	constexpr static const double m_kernelRadius = 0.2;
 	constexpr static const double m_gridWidth = 0.2; // Width of a cell in the uniform grid, ideally equal to kernel Radius
 };
 

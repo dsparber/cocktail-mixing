@@ -13,7 +13,7 @@ public:
     double m_viscosity;
     double m_stiffness;
     double m_particleMass;
-    double m_initialDensity;
+    double m_restDensity;
 
     double m_initialSpacing;
     Eigen::Vector3i m_initialDimension;

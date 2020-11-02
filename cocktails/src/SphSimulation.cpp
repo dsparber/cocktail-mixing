@@ -30,14 +30,12 @@ void SphSimulation::updateDensityAndPressure() {
 
             // density
             for(Particle* neighbor : neighborhood) {
-                Eigen::Vector3d diff = particle.m_pos - neighbor->m_pos;
-                double r2 = diff.dot(diff);
-                double delta = neighbor->m_mass * kernels::Wpoly6(r2, m_kernelRadius);
-                particle.m_density += delta;
+                double r2 = (particle.m_pos - neighbor->m_pos).squaredNorm();
+                particle.m_density += neighbor->m_mass * kernels::wPoly6(r2, m_kernelRadius);
             }
 
             // pressure
-            particle.m_pressure = fluid.m_stiffness * (particle.m_density - fluid.m_initialDensity);
+            particle.m_pressure = fluid.m_stiffness * (particle.m_density - fluid.m_restDensity);
         }
     }
 
@@ -51,24 +49,36 @@ void SphSimulation::updateForce() {
             std::vector<Particle *> neighborhood = m_neighborSearch->getNeighbors(&particle, m_kernelRadius);
 
             // TODO: implement surface tension
-            Eigen::Vector3d f_pressure, f_viscosity, f_external;
-            f_pressure.setZero();
-            f_viscosity.setZero();
-            f_external.setZero();
+            Eigen::Vector3d f_pressure = Eigen::Vector3d::Zero();
+            Eigen::Vector3d f_viscosity = Eigen::Vector3d::Zero();
+            Eigen::Vector3d f_external = Eigen::Vector3d::Zero();
+
+            // Gravity
+            f_external += constants::g * particle.m_mass;
+
+            // Helper variables
+            auto& p_i = particle.m_pressure;
+            auto& r_i = particle.m_pos;
+            auto& v_i = particle.m_vel;
 
             for (Particle *neighbor : neighborhood) {
-                Eigen::Vector3d r = particle.m_pos - neighbor->m_pos;
-                double pressure_coeff =
-                        neighbor->m_mass * (neighbor->m_pressure + particle.m_pressure) / (2.0 * neighbor->m_density);
-                double viscosity_coeff = neighbor->m_mass * kernels::lapWViscosity(r.squaredNorm(), m_kernelRadius) /
-                                         neighbor->m_density;
-                f_pressure += pressure_coeff * kernels::gradWspiky(r, m_kernelRadius);
-                f_viscosity += viscosity_coeff * (particle.m_vel - neighbor->m_vel);
+
+                // Helper variables
+                auto& m_j = neighbor->m_mass;
+                auto& p_j = neighbor->m_pressure;
+                auto& r_j = neighbor->m_pos;
+                auto& v_j = neighbor->m_vel;
+                auto& rho_j = neighbor->m_density;
+
+                // Pressure
+                f_pressure -= m_j * (p_i + p_j) / (2 * rho_j)
+                        * kernels::gradWSpiky(r_i - r_j, m_kernelRadius);
+
+                // Viscosity
+                f_viscosity += fluid.m_viscosity * m_j * (v_j - v_i) / rho_j
+                        * kernels::lapWViscosity((r_i - r_j).norm(), m_kernelRadius);
             }
 
-            f_pressure *= -particle.m_mass / particle.m_density;
-            f_viscosity *= -particle.m_mass * fluid.m_viscosity;
-            f_external = constants::g * particle.m_mass; // gravity
             particle.m_acc = (f_pressure + f_viscosity + f_external) / particle.m_density;
         }
     }

@@ -8,6 +8,7 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Particle* particl
     std::tie(x, y, z) = getIndex(particle->m_pos);
 
     double epsilon = gridWidth / 10000;
+    double radiusSquared = pow(radius, 2);
 
     int delta = int(ceil(radius / gridWidth));
     std::vector<Particle*> neighbors;
@@ -27,8 +28,7 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Particle* particl
                     continue;
                 }
                 for (auto neighbor : gridXYZ->second) {
-                    auto distance = (neighbor->m_pos - particle->m_pos).norm();
-                    if (distance <= radius + epsilon) {
+                    if ((neighbor->m_pos - particle->m_pos).squaredNorm() <= radiusSquared + epsilon) {
                         neighbors.push_back(particle);
                     }
                 }
