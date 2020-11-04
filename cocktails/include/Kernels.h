@@ -19,8 +19,7 @@ namespace kernels {
     }
 
     Eigen::Vector3d gradWSpiky(const Eigen::Vector3d& r, double h) {
-        Eigen::Vector3d gradient = r.normalized();
-        gradient *= -45 * pow(h - r.squaredNorm(), 2) / (M_PI * pow(h,6));
+        auto gradient = -r * 45 * pow(h - r.norm(), 2) / (M_PI * pow(h,6));
         return gradient;
     }
 

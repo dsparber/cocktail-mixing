@@ -4,7 +4,7 @@
 
 
 SphSimulation::SphSimulation() : FluidSimulation(m_gridWidth) {
-    m_dt = 0.1;
+    m_dt = 0.008;
 }
 
 
@@ -35,7 +35,7 @@ void SphSimulation::updateDensityAndPressure() {
             }
 
             // pressure
-            particle.m_pressure = fluid.m_stiffness * (particle.m_density - fluid.m_restDensity);
+            particle.m_pressure = std::max(0., fluid.m_stiffness * (particle.m_density - fluid.m_restDensity));
         }
     }
 
@@ -79,7 +79,12 @@ void SphSimulation::updateForce() {
                         * kernels::lapWViscosity((r_i - r_j).norm(), m_kernelRadius);
             }
 
-            particle.m_acc = (f_pressure + f_viscosity + f_external) / particle.m_density;
+            Eigen::Vector3d f =
+                    f_external +
+                    f_pressure +
+                    f_viscosity;
+
+            particle.m_acc = f / particle.m_density;
         }
     }
 }
@@ -97,6 +102,20 @@ void SphSimulation::updateVelocityAndPosition() {
             } else {
                 particle.m_pos = nextPosition;
             }
+        }
+    }
+
+    return;
+    // DEBUG Stuff
+    double maxPressure = 0;
+    for (auto& fluid : m_fluids) {
+        for(auto& particle : fluid.m_particles) {
+            maxPressure = std::max(maxPressure, particle.m_pressure);
+        }
+    }
+    for (auto& fluid : m_fluids) {
+        for(auto& particle : fluid.m_particles) {
+            particle.m_color << abs(particle.m_pressure) / maxPressure, 0, 0;
         }
     }
 }

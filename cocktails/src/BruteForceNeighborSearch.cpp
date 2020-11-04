@@ -15,7 +15,7 @@ std::vector<Particle*> BruteForceNeighborSearch::getNeighbors(Particle* particle
     for (auto& neighbor : particles) {
         auto distance = (neighbor->m_pos - particle->m_pos).norm();
         if (distance <= radius + epsilon) {
-            neighbors.push_back(particle);
+            neighbors.push_back(neighbor);
         }
     }
     return neighbors;

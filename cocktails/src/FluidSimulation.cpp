@@ -9,9 +9,9 @@ FluidSimulation::FluidSimulation(double gridWidth) : Simulation() {
     m_scene = new Scene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(4, 4, 4));
 
     Fluid fluid = fluids::water();
-    fluid.m_initialDimension << 10, 5, 10;
-    fluid.m_initialOffset << 2, 2, 2;
+    fluid.m_initialDimension << 10, 10, 10;
     fluid.m_initialSpacing = .1;
+    fluid.m_initialOffset << 1.5, 2.5, 1.5;
 
     m_fluids.push_back(fluid);
 }

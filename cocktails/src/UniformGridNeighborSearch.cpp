@@ -29,7 +29,7 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Particle* particl
                 }
                 for (auto neighbor : gridXYZ->second) {
                     if ((neighbor->m_pos - particle->m_pos).squaredNorm() <= radiusSquared + epsilon) {
-                        neighbors.push_back(particle);
+                        neighbors.push_back(neighbor);
                     }
                 }
             }
