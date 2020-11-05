@@ -1,10 +1,13 @@
 #include "../include/Kernels.h"
 #include "../include/SphSimulation.h"
 #include "../include/Constants.h"
+#include "../include/UniformGridNeighborSearch.h"
 
-
-SphSimulation::SphSimulation() : FluidSimulation(m_gridWidth) {
+SphSimulation::SphSimulation() : FluidSimulation() {
     m_dt = 0.008;
+    m_gridWidth = 0.2;
+    m_kernelRadius = 0.2;
+    m_neighborSearch = new UniformGridNeighborSearch(m_gridWidth);
 }
 
 
@@ -16,8 +19,24 @@ bool SphSimulation::advance() {
     updateVelocityAndPosition();
 
     // Needs to be called to update particle related data
-    FluidSimulation::updateNeighbors();
+    updateNeighbors();
 	return false;
+}
+
+void SphSimulation::resetMembers() {
+    FluidSimulation::resetMembers();
+    delete m_neighborSearch;
+    m_neighborSearch = new UniformGridNeighborSearch(m_gridWidth);
+    updateNeighbors();
+}
+
+void SphSimulation::updateNeighbors() {
+    m_neighborSearch->reset();
+    for (auto& fluid : m_fluids) {
+        for (auto& particle : fluid.m_particles) {
+            m_neighborSearch->addParticle(&particle);
+        }
+    }
 }
 
 void SphSimulation::updateDensityAndPressure() {
@@ -118,4 +137,14 @@ void SphSimulation::updateVelocityAndPosition() {
             particle.m_color << abs(particle.m_pressure) / maxPressure, 0, 0;
         }
     }
+}
+
+void SphSimulation::setKernelRadius(double kernelRadius) {
+    assert(kernelRadius >= 0);
+    m_kernelRadius = kernelRadius;
+}
+
+void SphSimulation::setGridWidth(double gridWidth) {
+    assert(gridWidth >= 0);
+    m_gridWidth = gridWidth;
 }

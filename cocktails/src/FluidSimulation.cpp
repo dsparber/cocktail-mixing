@@ -4,16 +4,9 @@
 
 using namespace std;
 
-FluidSimulation::FluidSimulation(double gridWidth) : Simulation() {
-    m_neighborSearch = new UniformGridNeighborSearch(gridWidth);
+FluidSimulation::FluidSimulation() : Simulation() {
     m_scene = new Scene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(4, 4, 4));
-
-    Fluid fluid = fluids::water();
-    fluid.m_initialDimension << 10, 10, 10;
-    fluid.m_initialSpacing = .1;
-    fluid.m_initialOffset << 1.5, 2.5, 1.5;
-
-    m_fluids.push_back(fluid);
+    m_fluids.push_back(fluids::waterBlock());
 }
 
 void FluidSimulation::initFluids() {
@@ -29,21 +22,11 @@ void FluidSimulation::init() {
 
 void FluidSimulation::resetMembers() {
     initFluids();
-    updateNeighbors();
 }
 
 bool FluidSimulation::advance() {
 	m_step++;
 	return false;
-}
-
-void FluidSimulation::updateNeighbors() {
-    m_neighborSearch->reset();
-    for (auto& fluid : m_fluids) {
-        for (auto& particle : fluid.m_particles) {
-            m_neighborSearch->addParticle(&particle);
-        }
-    }
 }
 
 void FluidSimulation::updateRenderGeometry() {
@@ -71,4 +54,9 @@ void FluidSimulation::renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) {
     m_scene->draw(viewer);
 }
 
-
+void FluidSimulation::updateFluids(const std::vector<Fluid>& fluids) {
+    m_fluids.clear();
+    for(auto& fluid : fluids) {
+        m_fluids.push_back(fluid);
+    }
+}

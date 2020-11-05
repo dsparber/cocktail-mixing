@@ -178,4 +178,4 @@ protected:
 	shared_ptr<ParticlesData> m_pParticleData;
 };
 
-#endif
+#endif // GUI_H

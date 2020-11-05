@@ -10,7 +10,7 @@ void Fluid::init() {
         for (int y = 0; y < d.y(); ++y) {
             for (int z = 0; z < d.z(); ++z) {
                 Particle particle;
-                particle.m_mass = 1000 * m_V;
+                particle.m_mass = m_particleMass;
                 particle.m_pos << x, y, z;
                 particle.m_pos *= m_initialSpacing;
                 particle.m_pos += m_initialOffset;

@@ -83,4 +83,4 @@ protected:
 	static float m_cubic_g;
 };
 
-#endif KERNEL_H
+#endif // KERNEL_H

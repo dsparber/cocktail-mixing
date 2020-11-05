@@ -3,13 +3,12 @@
 
 #include "Simulation.h"
 #include "Particle.h"
-#include "NeighborSearch.h"
 #include "Scene.h"
 #include "Fluid.h"
 
 class FluidSimulation : public Simulation {
 public:
-    explicit FluidSimulation(double gridWidth);
+    explicit FluidSimulation();
 
     virtual void init() override;
 	virtual void resetMembers() override;
@@ -19,11 +18,10 @@ public:
     void renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) override;
 
     void initFluids();
-	void updateNeighbors();
-
+    void updateFluids(const std::vector<Fluid>& fluids);
+    
 protected:
     std::vector<Fluid> m_fluids;
-    NeighborSearch* m_neighborSearch;
 	Scene* m_scene;
 
 private:
@@ -32,4 +30,4 @@ private:
 	Eigen::MatrixXd C;  // Colors per face
 };
 
-#endif
+#endif // PBS_PARTICLE_SIMULATION_H
