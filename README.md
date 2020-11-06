@@ -8,7 +8,7 @@ Simulation of mixing fluids for Physically-based Simulation at ETH Zurich
 |----------------|------------------|------------|
 | Viviane Yang   | vyang@ethz.ch    | 16-944-530 |
 | Daniel Sparber | dsparber@ethz.ch | 17-948-191 |
-| Jela Kovaceviv | jelak@ethz.ch    |            |
+| Jela Kovacevic | jelak@ethz.ch    | 15-923-428 |
 
 
 ## References
