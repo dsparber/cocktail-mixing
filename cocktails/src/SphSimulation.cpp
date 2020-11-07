@@ -116,9 +116,7 @@ void SphSimulation::updateVelocityAndPosition() {
             particle.m_vel += m_dt * particle.m_acc;
             Eigen::Vector3d nextPosition = particle.m_pos + m_dt * particle.m_vel;
             if (m_scene->outOfBoundary(nextPosition)) {
-                // move into box
-                // reflect velocity
-                particle.m_vel *= -1;
+                m_scene->updateOnBoundaryCollision(particle, m_dt);
             } else {
                 particle.m_pos = nextPosition;
             }

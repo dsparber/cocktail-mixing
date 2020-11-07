@@ -3,20 +3,43 @@
 
 #include <Eigen/Dense>
 #include <igl/opengl/glfw/Viewer.h>
+#include "Particle.h"
 
 class Scene {
 public:
-    Scene(const Eigen::Vector3d& m, const Eigen::Vector3d& M);
+	Scene() {};
 
-	void draw(igl::opengl::glfw::Viewer &viewer);
+	virtual ~Scene() {}
 
-	Eigen::Vector3d getSurfaceNormal(const Eigen::Vector3d& pos1, const Eigen::Vector3d& pos2);
+	virtual void draw(igl::opengl::glfw::Viewer& viewer) = 0;
 
-	bool outOfBoundary(const Eigen::Vector3d& pos);
+	virtual bool outOfBoundary(const Eigen::Vector3d& pos) = 0;
 
-private:
-	Eigen::MatrixXd m_V;
-	Eigen::MatrixXi m_E;
+	void updateOnBoundaryCollision(Particle& particle, const double dt) {
+		Eigen::Vector3d intersection, normal;
+		getIntersectionPointAndSurfaceNormal(particle.m_pos, dt * particle.m_vel, intersection, normal);
+		particle.m_vel = 2 * normal.dot(-particle.m_vel) * normal + particle.m_vel; // reflect on normal
+		double remainingDt = dt - (intersection - particle.m_pos).norm();
+		particle.m_pos = intersection;
+
+		if (remainingDt > 0) {
+			Eigen::Vector3d nextPosition = particle.m_pos + remainingDt * particle.m_vel;
+			if (outOfBoundary(nextPosition)) { // check for another boundary collision and recurse while dt > 0
+				updateOnBoundaryCollision(particle, remainingDt);
+			}
+			else {
+				particle.m_pos = nextPosition;
+			}
+		}
+	}
+
+protected:
+	virtual void getIntersectionPointAndSurfaceNormal(
+		const Eigen::Vector3d& pos,
+		const Eigen::Vector3d& dir,
+		Eigen::Vector3d& intersection,
+		Eigen::Vector3d& normal
+	) = 0;
 };
 
 #endif
