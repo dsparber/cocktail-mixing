@@ -9,17 +9,17 @@ class Fluid {
 public:
     std::vector<Particle> m_particles;
 
+    std::string m_name;
+
     double m_V;
     double m_viscosity;
     double m_stiffness;
-    double m_particleMass;
     double m_restDensity;
+    double m_particleMass;
 
-    double m_initialSpacing;
-    Eigen::Vector3i m_initialDimension;
-    Eigen::Vector3d m_initialOffset;
+    Fluid(std::string name, double V, double viscosity, double stiffness, double restDensity, double particleMass);
 
-    void init();
+    void reset();
 };
 
 

@@ -332,7 +332,7 @@ bool Gui::mouseCallback(igl::opengl::glfw::Viewer &viewer,
 }
 
 void Gui::drawMenuWindow(igl::opengl::glfw::imgui::ImGuiMenu &menu) {
-	glfwSetWindowTitle(m_viewer.window, "PBS Exercises");
+	glfwSetWindowTitle(m_viewer.window, "Cocktail Simulation");
 
 	float menu_width = 220.f * menu.menu_scaling();
 
@@ -478,7 +478,7 @@ bool Gui::drawMenu(igl::opengl::glfw::Viewer &viewer,
 			p_simulator->setMaxSteps(m_maxSteps);
 		}
 	}
-	if (ImGui::CollapsingHeader("Overlays", ImGuiTreeNodeFlags_DefaultOpen)) {
+	if (ImGui::CollapsingHeader("Overlays", ImGuiTreeNodeFlags_None)) {
 		if (ImGui::Checkbox("Wireframe", (bool*)&(viewer.data().show_lines))) {
 			for (size_t i = 0; i < viewer.data_list.size(); i++) {
 				viewer.data_list[i].show_lines = viewer.data().show_lines;

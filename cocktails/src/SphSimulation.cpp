@@ -13,13 +13,14 @@ SphSimulation::SphSimulation() : FluidSimulation() {
 
 bool SphSimulation::advance() {
     FluidSimulation::advance();
+    // Needs to be called to update particle related data
+    updateNeighbors();
 
     updateDensityAndPressure();
     updateForce();
     updateVelocityAndPosition();
 
-    // Needs to be called to update particle related data
-    updateNeighbors();
+
 	return false;
 }
 
@@ -33,7 +34,7 @@ void SphSimulation::resetMembers() {
 void SphSimulation::updateNeighbors() {
     m_neighborSearch->reset();
     for (auto& fluid : m_fluids) {
-        for (auto& particle : fluid.m_particles) {
+        for (auto& particle : fluid->m_particles) {
             m_neighborSearch->addParticle(&particle);
         }
     }
@@ -41,7 +42,7 @@ void SphSimulation::updateNeighbors() {
 
 void SphSimulation::updateDensityAndPressure() {
     for (auto& fluid : m_fluids) {
-        for(auto& particle : fluid.m_particles) {
+        for(auto& particle : fluid->m_particles) {
 
             particle.m_density = 0.0;
 
@@ -54,7 +55,7 @@ void SphSimulation::updateDensityAndPressure() {
             }
 
             // pressure
-            particle.m_pressure = std::max(0., fluid.m_stiffness * (particle.m_density - fluid.m_restDensity));
+            particle.m_pressure = std::max(0., fluid->m_stiffness * (particle.m_density - fluid->m_restDensity));
         }
     }
 
@@ -63,7 +64,7 @@ void SphSimulation::updateDensityAndPressure() {
 
 void SphSimulation::updateForce() {
     for (auto& fluid : m_fluids) {
-        for (auto &particle : fluid.m_particles) {
+        for (auto &particle : fluid->m_particles) {
 
             std::vector<Particle *> neighborhood = m_neighborSearch->getNeighbors(&particle, m_kernelRadius);
 
@@ -94,7 +95,7 @@ void SphSimulation::updateForce() {
                         * kernels::gradWSpiky(r_i - r_j, m_kernelRadius);
 
                 // Viscosity
-                f_viscosity += fluid.m_viscosity * m_j * (v_j - v_i) / rho_j
+                f_viscosity += fluid->m_viscosity * m_j * (v_j - v_i) / rho_j
                         * kernels::lapWViscosity((r_i - r_j).norm(), m_kernelRadius);
             }
 
@@ -111,7 +112,7 @@ void SphSimulation::updateForce() {
 
 void SphSimulation::updateVelocityAndPosition() {
     for (auto& fluid : m_fluids) {
-        for(auto& particle : fluid.m_particles) {
+        for(auto& particle : fluid->m_particles) {
             particle.m_vel += m_dt * particle.m_acc;
             Eigen::Vector3d nextPosition = particle.m_pos + m_dt * particle.m_vel;
             if (m_scene->outOfBoundary(nextPosition)) {
@@ -128,12 +129,12 @@ void SphSimulation::updateVelocityAndPosition() {
     // DEBUG Stuff
     double maxPressure = 0;
     for (auto& fluid : m_fluids) {
-        for(auto& particle : fluid.m_particles) {
+        for(auto& particle : fluid->m_particles) {
             maxPressure = std::max(maxPressure, particle.m_pressure);
         }
     }
     for (auto& fluid : m_fluids) {
-        for(auto& particle : fluid.m_particles) {
+        for(auto& particle : fluid->m_particles) {
             particle.m_color << abs(particle.m_pressure) / maxPressure, 0, 0;
         }
     }

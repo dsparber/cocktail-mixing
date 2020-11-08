@@ -1,7 +1,8 @@
 #include <igl/writeOFF.h>
 #include "Gui.h"
 #include "../include/SphSimulation.h"
-#include "../include/Fluid.h"
+#include "../include/BlockSource.h"
+#include "../include/GeneratingSource.h"
 #include "../include/FluidDefinitons.h"
 
 /*
@@ -12,81 +13,96 @@
 class MainGui : public Gui {
 public:
 	SphSimulation *simulation = nullptr;
-	std::vector<Fluid> m_fluids;
-	double m_kernelRadius;
-	double m_gridWidth;
-	double m_dt;
 
 	MainGui() {
-		m_dt = 0.008;
+        simulation = new SphSimulation();
+        simulation->m_fluids = fluids::all;
+        simulation->m_sources.push_back(new GeneratingSource(fluids::water));
 
-		// initialize GUI variables
-		m_fluids.push_back(fluids::waterBlock());
-
-		m_kernelRadius = 0.2;
-		m_gridWidth = 0.2;
-		
-		// create simulation
-		simulation = new SphSimulation();
-		simulation->init();
-
-		// set this simulation as the simulation that is running in our GUI
 		setSimulation(simulation);
-
-		// start the GUI
+        simulation->init();
 		start();
 	}
 
 	void drawSimulationParameterMenu() override {
 
 		// Simulation GUI
-		ImGui::InputDouble("Simulation dt", &m_dt);
-		
-		// Fluid GUI
-		if (ImGui::Button("Add fluid", ImVec2(-1, 0))) {
-			m_fluids.push_back(fluids::waterBlock());
-		}
-		
-		for(int i = 0; i < m_fluids.size(); i++) {
+		ImGui::InputDouble("Simulation dt", &simulation->m_dt);
 
-			std::string header = "Fluid " + std::to_string(i);
-			if (ImGui::CollapsingHeader(header.c_str(),
-				ImGuiTreeNodeFlags_DefaultOpen)) {
-				auto& fluid = m_fluids[i];
-				// fluid properties
-				ImGui::InputDouble("Stiffness", &fluid.m_stiffness);
-				ImGui::InputDouble("Viscosity", &fluid.m_viscosity);
-				ImGui::InputDouble("Particle Mass", &fluid.m_particleMass);
-				ImGui::InputDouble("Rest Density", &fluid.m_restDensity);
-				
-				// particle arrangement
-				ImGui::InputDouble("Particle distance", &fluid.m_initialSpacing);
+        // SPH GUI
+        ImGui::InputDouble("Kernel Radius", &simulation->m_kernelRadius);
+        ImGui::InputDouble("Grid Width", &simulation->m_gridWidth);
 
-				ImGui::InputInt("Particels: x", &fluid.m_initialDimension[0]);
-				ImGui::InputInt("Particles: y", &fluid.m_initialDimension[1]);
-				ImGui::InputInt("Particles: z", &fluid.m_initialDimension[2]);
+        if (ImGui::CollapsingHeader("Fluids")) {
+            for (auto &fluid : fluids::all) {
+                if (ImGui::CollapsingHeader(fluid->m_name.c_str())) {
+                    // fluid properties
+                    ImGui::InputDouble("Stiffness", &fluid->m_stiffness);
+                    ImGui::InputDouble("Viscosity", &fluid->m_viscosity);
+                    ImGui::InputDouble("Particle Mass", &fluid->m_particleMass);
+                    ImGui::InputDouble("Rest Density", &fluid->m_restDensity);
+                }
+            }
+        }
 
-				ImGui::InputDouble("Offset: x", &fluid.m_initialOffset[0]);
-				ImGui::InputDouble("Offset: y", &fluid.m_initialOffset[1]);
-				ImGui::InputDouble("Offset: z", &fluid.m_initialOffset[2]);
+        if (ImGui::CollapsingHeader("Sources")) {
 
-			}
-		}
 
-		// SPH GUI
-		ImGui::InputDouble("Kernel Radius", &m_kernelRadius);
-		ImGui::InputDouble("Grid Width", &m_gridWidth);
+            if (ImGui::Button("Add block source", ImVec2(-1, 0))) {
+                simulation->m_sources.push_back(new BlockSource(fluids::water));
+                simulation->m_sources.back()->init();
+            }
+
+            if (ImGui::Button("Add generating source", ImVec2(-1, 0))) {
+                simulation->m_sources.push_back(new GeneratingSource(fluids::water));
+                simulation->m_sources.back()->init();
+            }
+
+
+            int i = 0;
+            for (auto &source : simulation->m_sources) {
+
+                if (ImGui::CollapsingHeader(("Source " + to_string(++i) + ": " + source->toString()).c_str())) {
+
+                    auto blockSource = dynamic_cast<BlockSource *>(source);
+                    if (blockSource != nullptr) {
+                        ImGui::InputDouble("Particle distance", &blockSource->m_initialSpacing);
+
+                        ImGui::InputInt("Particels: x", &blockSource->m_initialDimension[0]);
+                        ImGui::InputInt("Particles: y", &blockSource->m_initialDimension[1]);
+                        ImGui::InputInt("Particles: z", &blockSource->m_initialDimension[2]);
+
+                        ImGui::InputDouble("Offset: x", &blockSource->m_initialOffset[0]);
+                        ImGui::InputDouble("Offset: y", &blockSource->m_initialOffset[1]);
+                        ImGui::InputDouble("Offset: z", &blockSource->m_initialOffset[2]);
+                    }
+
+                    auto generatingSource = dynamic_cast<GeneratingSource *>(source);
+                    if (generatingSource != nullptr) {
+                        ImGui::InputInt("Max. particles", &generatingSource->m_maxParticles);
+                        ImGui::InputDouble("Particles per second", &generatingSource->m_particlesPerSecond);
+
+                        ImGui::InputDouble("Position: x", &generatingSource->m_position[0]);
+                        ImGui::InputDouble("Position: y", &generatingSource->m_position[1]);
+                        ImGui::InputDouble("Position: z", &generatingSource->m_position[2]);
+                        ImGui::InputDouble("Position: std. deviation", &generatingSource->m_positionStdDeviation);
+
+                        ImGui::InputDouble("Particle Velocity: x", &generatingSource->m_particleVelocity[0]);
+                        ImGui::InputDouble("Particle Velocity: y", &generatingSource->m_particleVelocity[1]);
+                        ImGui::InputDouble("Particle Velocity: z", &generatingSource->m_particleVelocity[2]);
+                        ImGui::InputDouble("Particle Velocity: std. deviation", &generatingSource->m_particleVelocityStdDeviation);
+                    }
+
+                }
+            }
+        }
+
+
 
 	}
 
 	void updateSimulationParameters() override {
-		// Simulation parameter
- 		simulation->setTimestep(m_dt);
-		// FluidSimulation parameter
-		simulation->updateFluids(m_fluids);
-		// SPH parameter
-		simulation->setKernelRadius(m_kernelRadius);
-		simulation->setGridWidth(m_gridWidth);
+
 	};
 };
 

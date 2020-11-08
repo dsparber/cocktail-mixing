@@ -5,10 +5,14 @@
 #include "Particle.h"
 #include "Scene.h"
 #include "Fluid.h"
+#include "Source.h"
 
 class FluidSimulation : public Simulation {
 public:
     explicit FluidSimulation();
+
+    std::vector<Fluid*> m_fluids;
+    std::vector<Source*> m_sources;
 
     virtual void init() override;
 	virtual void resetMembers() override;
@@ -17,11 +21,7 @@ public:
 	void updateRenderGeometry() override;
     void renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) override;
 
-    void initFluids();
-    void updateFluids(const std::vector<Fluid>& fluids);
-    
 protected:
-    std::vector<Fluid> m_fluids;
 	Scene* m_scene;
 
 private:

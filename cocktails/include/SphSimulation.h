@@ -16,6 +16,9 @@ public:
 
 	void setKernelRadius(double kernelRadius);
 	void setGridWidth(double gridwidth);
+
+	double m_kernelRadius;
+	double m_gridWidth; // Width of a cell in the uniform grid, ideally equal to kernel Radius
 	
 private:
     void updateDensityAndPressure();
@@ -25,8 +28,7 @@ private:
     NeighborSearch* m_neighborSearch;
 	void updateNeighbors();
 
-	double m_kernelRadius;
-	double m_gridWidth; // Width of a cell in the uniform grid, ideally equal to kernel Radius
+
 };
 
 #endif // PBS_SPH_SIMULATION_H

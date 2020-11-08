@@ -49,6 +49,6 @@ Eigen::Vector3d Scene::getSurfaceNormal(const Eigen::Vector3d &pos1, const Eigen
 
 bool Scene::outOfBoundary(const Eigen::Vector3d &pos) {
     return pos.x() > m_V(1, 0) || pos.x() < m_V(0, 0) ||
-           pos.y() > m_V(2, 1) || pos.y() < m_V(0, 1) ||
+           pos.y() < m_V(0, 1) ||
            pos.z() > m_V(4, 2) || pos.z() < m_V(0, 2);
 }
