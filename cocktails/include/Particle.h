@@ -3,6 +3,8 @@
 
 #include <Eigen/Dense>
 
+class Fluid;
+
 class Particle {
 
 public:
@@ -15,6 +17,9 @@ public:
     Eigen::Vector3d m_vel;
     Eigen::Vector3d m_acc;
     Eigen::Vector3d m_color;
+
+    Fluid* m_fluid;
+    std::vector<Particle*> m_neighbors;
 
 };
 

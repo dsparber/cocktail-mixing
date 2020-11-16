@@ -14,5 +14,7 @@ Simulation of mixing fluids for Physically-based Simulation at ETH Zurich
 ## References
 
 [Particle-Based Fluid Simulation for Interactive Applications](https://matthias-research.github.io/pages/publications/sca03.pdf)
+
 [Density Contrast SPH Interfaces](https://www.zora.uzh.ch/id/eprint/9734/2/Solenthaler_sca08.pdf)
+
 [Multiple-Fluid SPH Simulation Using a Mixture Model](https://dl.acm.org/doi/pdf/10.1145/2645703)

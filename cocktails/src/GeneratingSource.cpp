@@ -34,6 +34,7 @@ bool GeneratingSource::advance(double t) {
         particle.m_mass = m_fluid->m_particleMass;
         particle.m_pos = m_position + random(m_positionStdDeviation);
         particle.m_vel = m_particleVelocity + random(m_particleVelocityStdDeviation);
+        particle.m_fluid = m_fluid;
         m_fluid->m_particles.push_back(particle);
         ++m_particleCount;
     }

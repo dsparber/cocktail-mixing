@@ -1,6 +1,7 @@
 #include "../include/FluidSimulation.h"
 #include "../include/UniformGridNeighborSearch.h"
 #include "../include/BoxScene.h"
+#include <thread>
 
 using namespace std;
 
@@ -9,30 +10,30 @@ FluidSimulation::FluidSimulation() : Simulation() {
 }
 
 void FluidSimulation::init() {
-	reset();
+    reset();
 }
 
 void FluidSimulation::resetMembers() {
-    for (auto& fluid : m_fluids) {
+    for (auto &fluid : m_fluids) {
         fluid->reset();
     }
-    for (auto& source : m_sources) {
+    for (auto &source : m_sources) {
         source->init();
     }
 }
 
 bool FluidSimulation::advance() {
     m_time += m_dt;
-    for (auto& source : m_sources) {
+    for (auto &source : m_sources) {
         source->advance(m_time);
     }
-	m_step++;
-	return false;
+    m_step++;
+    return false;
 }
 
 void FluidSimulation::updateRenderGeometry() {
     int numParticles = 0;
-    for (auto& fluid : m_fluids) {
+    for (auto &fluid : m_fluids) {
         numParticles += fluid->m_particles.size();
     }
 
@@ -40,8 +41,8 @@ void FluidSimulation::updateRenderGeometry() {
     C.resize(numParticles, 3);
 
     int i = 0;
-    for (auto& fluid : m_fluids) {
-        for (auto& particle : fluid->m_particles) {
+    for (auto &fluid : m_fluids) {
+        for (auto &particle : fluid->m_particles) {
             V.row(i) << particle.m_pos.transpose();
             C.row(i) << particle.m_color.transpose();
             ++i;
@@ -53,4 +54,24 @@ void FluidSimulation::renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) {
     viewer.data().point_size = 10;
     viewer.data().set_points(V, C);
     m_scene->draw(viewer);
+}
+
+void FluidSimulation::runParallel(int elementCount, const std::function<void(int, int)> &f) {
+    int numThreads = std::max(4, (int) std::thread::hardware_concurrency());
+    int elementsPerThread = ceil(1. * elementCount / numThreads);
+    std::vector<std::thread> threads(numThreads);
+
+    if (elementCount == 0) {
+        return;
+    }
+
+    for (int i = 0; i < numThreads; ++i) {
+        int start = std::min(elementCount - 1, i * elementsPerThread);
+        int end = std::min(elementCount, (i + 1) * elementsPerThread);
+        threads[i] = std::thread(f, start, end);
+    }
+
+    for (auto& thread : threads) {
+        thread.join();
+    }
 }

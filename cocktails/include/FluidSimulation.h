@@ -24,6 +24,8 @@ public:
 protected:
 	Scene* m_scene;
 
+	static void runParallel(int elementCount, const std::function<void(int, int)>& f);
+
 private:
 	Eigen::MatrixXd V;  // Vertex positions
     Eigen::MatrixXi F;  // Faces (indices of vertices)
