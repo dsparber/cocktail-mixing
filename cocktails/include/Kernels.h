@@ -8,7 +8,7 @@
  * All of the following methods assume 0 <= r <= h and
  */
 namespace kernels {
-    
+
     double wPoly6(double r2, double h) {
         double h2 = h*h;
         return 315 / (64 * M_PI) * pow(h2 - r2, 3) / pow(h, 9);
@@ -25,7 +25,7 @@ namespace kernels {
 
     double lapWViscosity(double r, double h) {
         return 45 * (h - r) / (M_PI * pow(h, 6));
-    } 
+    }
 
 } // namespace kernels
 

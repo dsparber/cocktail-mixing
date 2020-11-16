@@ -47,7 +47,7 @@ void SphSimulation::updateDensityAndPressure() {
             particle.m_density = 0.0;
 
             std::vector<Particle*> neighborhood = m_neighborSearch->getNeighbors(&particle, m_kernelRadius);
-            
+
             // density
             for(Particle* neighbor : neighborhood) {
                 double r2 = (particle.m_pos - neighbor->m_pos).squaredNorm();
@@ -87,6 +87,7 @@ void SphSimulation::updateForce() {
             auto& p_i = particle.m_pressure;
             auto& r_i = particle.m_pos;
             auto& v_i = particle.m_vel;
+            auto& mu_i = fluid->m_viscosity;
 
             for (Particle *neighbor : neighborhood) {
 
@@ -96,15 +97,13 @@ void SphSimulation::updateForce() {
                 auto& r_j = neighbor->m_pos;
                 auto& v_j = neighbor->m_vel;
                 auto& rho_j = neighbor->m_density;
+                auto& mu_j = neighbor->m_fluid->m_viscosity;
 
                 // Pressure
-                // f_pressure -= m_j * (p_i + p_j) / (2 * rho_j)
-                //         * kernels::gradWSpiky(r_i - r_j, m_kernelRadius);
-
                 f_pressure -= m_j * (p_i + p_j) / (2 * rho_j)
                         * kernels::gradWSpiky(r_i - r_j, m_kernelRadius);
                 // Viscosity
-                f_viscosity += fluid->m_viscosity * m_j * (v_j - v_i) / rho_j
+                f_viscosity += (mu_i + mu_j) * m_j * (v_j - v_i) / (2 * rho_j)
                         * kernels::lapWViscosity((r_i - r_j).norm(), m_kernelRadius);
             }
 

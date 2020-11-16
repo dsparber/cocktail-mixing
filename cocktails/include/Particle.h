@@ -3,6 +3,8 @@
 
 #include <Eigen/Dense>
 
+class Fluid; // use forward declaration
+
 class Particle {
 
 public:
@@ -15,6 +17,7 @@ public:
     Eigen::Vector3d m_vel;
     Eigen::Vector3d m_acc;
     Eigen::Vector3d m_color;
+    Fluid* m_fluid; // ptr to fluid to access fluid properties
 
 };
 

@@ -1,4 +1,5 @@
 #include "../include/BlockSource.h"
+#include "../include/Particle.h"
 
 BlockSource::BlockSource(Fluid *fluid) : Source(fluid) {
     m_initialDimension << 10, 10, 10;
@@ -18,6 +19,7 @@ void BlockSource::init() {
                 particle.m_pos *= m_initialSpacing;
                 particle.m_pos += m_initialOffset;
                 particle.m_color << 1. * x / d.x(), 1. * y / d.y(), 1. * z / d.z();
+                particle.m_fluid = m_fluid;
                 m_fluid->m_particles.push_back(particle);
             }
         }
