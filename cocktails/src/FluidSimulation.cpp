@@ -1,5 +1,4 @@
 #include "../include/FluidSimulation.h"
-#include "../include/UniformGridNeighborSearch.h"
 #include "../include/BoxScene.h"
 
 using namespace std;

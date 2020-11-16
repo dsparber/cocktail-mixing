@@ -21,7 +21,7 @@ public:
 	void updateRenderGeometry() override;
     void renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) override;
 
-protected:
+// protected:
 	Scene* m_scene;
 
 private:

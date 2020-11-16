@@ -4,7 +4,7 @@
 #include "../include/BlockSource.h"
 #include "../include/GeneratingSource.h"
 #include "../include/FluidDefinitons.h"
-
+#include "../include/BoxScene.h"
 /*
  * This class is a GUI for our dummy simulation. It extends the basic GUI
  * defined in Gui.h. We could add more controls and visuals here, but we don't
@@ -13,8 +13,11 @@
 class MainGui : public Gui {
 public:
 	SphSimulation *simulation = nullptr;
+    double m_scale;
 
 	MainGui() {
+        m_scale = 1.0;
+
         simulation = new SphSimulation();
         simulation->m_fluids = fluids::all;
         simulation->m_sources.push_back(new GeneratingSource(fluids::water));
@@ -32,6 +35,13 @@ public:
         // SPH GUI
         ImGui::InputDouble("Kernel Radius", &simulation->m_kernelRadius);
         ImGui::InputDouble("Grid Width", &simulation->m_gridWidth);
+
+        if(ImGui::CollapsingHeader("Boundary Box")) {
+            ImGui::InputDouble("Box scale", &m_scale);
+            if(ImGui::Button("Reset boundary", ImVec2(-1, 0))) {
+                simulation->m_scene = new BoxScene(Eigen::Vector3d(0,0,0), Eigen::Vector3d(m_scale, m_scale, m_scale));
+            }
+        }
 
         if (ImGui::CollapsingHeader("Fluids")) {
             for (auto &fluid : fluids::all) {
@@ -58,6 +68,9 @@ public:
                 simulation->m_sources.back()->init();
             }
 
+            if (ImGui::Button("Remove sources", ImVec2(-1, 0))) {
+                simulation->m_sources.clear();
+            }
 
             int i = 0;
             for (auto &source : simulation->m_sources) {
