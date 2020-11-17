@@ -1,5 +1,6 @@
 #include <igl/writeOFF.h>
 #include "Gui.h"
+#include "../include/DCSPHSimulation.h"
 #include "../include/SphSimulation.h"
 #include "../include/BlockSource.h"
 #include "../include/GeneratingSource.h"
@@ -14,6 +15,8 @@ class MainGui : public Gui {
 public:
 	SphSimulation *simulation = nullptr;
     int m_fluid_chooser;
+    int m_solver_chooser;
+    vector<string> m_solver_names;
     vector<string> m_fluid_names;
     Eigen::Vector3d m_scene_max;
     Eigen::Vector3d m_scene_origin;
@@ -23,13 +26,15 @@ public:
             m_fluid_names.push_back(fluid->m_name);
         }
 
+        m_solver_chooser = 0;
+        m_solver_names = {"SPH", "DCSPH"};
+
         m_scene_max << 2., 4., 1.2;
         m_scene_origin = Eigen::Vector3d::Zero();
 
         simulation = new SphSimulation();
-        simulation->m_fluids = fluids::all;
-        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 8), 0.1, Eigen::Vector3d(0.1, 0.5, 0.1)));
 
+        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 8), 0.1, Eigen::Vector3d(0.1, 0.5, 0.1)));
         simulation->m_scene = new BoxScene(m_scene_origin, m_scene_max);
 
 		setSimulation(simulation);
@@ -38,6 +43,23 @@ public:
 	}
 
 	void drawSimulationParameterMenu() override {
+        
+        ImGui::Combo("Choose Solver:", &m_solver_chooser, m_solver_names);
+        if(ImGui::Button("Confirm", ImVec2(-1, 0))) {
+            delete simulation;
+            switch(m_solver_chooser){
+                case 0:
+                    simulation = new SphSimulation();
+                    cout << "Switched to SPH\n";
+                    break;
+                case 1:
+                    simulation = new DCSPHSimulation();
+                    cout << "Switched to DCSPH\n";
+                    break;
+                default:
+                    simulation = new SphSimulation();
+            }
+        }
 
 		// Simulation GUI
 		ImGui::InputDouble("Simulation dt", &simulation->m_dt);

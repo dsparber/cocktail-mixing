@@ -150,7 +150,7 @@ protected:
 
 	Simulator *p_simulator = NULL;
 	bool m_request_clear = false;
-	int m_simSpeed = 60;
+	int m_simSpeed = 800;
 	int m_maxSimSpeed = 1000;
 	bool m_fastForward = false;
 

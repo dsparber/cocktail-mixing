@@ -1,11 +1,13 @@
 #include "../include/FluidSimulation.h"
 #include "../include/UniformGridNeighborSearch.h"
 #include "../include/BoxScene.h"
+#include "../include/FluidDefinitons.h"
 #include <thread>
 
 using namespace std;
 
 FluidSimulation::FluidSimulation() : Simulation() {
+    m_fluids = fluids::all;
     m_scene = new BoxScene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(4, 4, 4));
 }
 
