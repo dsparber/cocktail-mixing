@@ -6,6 +6,10 @@ BlockSource::BlockSource(Fluid *fluid) : Source(fluid) {
     m_initialOffset << 1.5, 2.5, 1.5;
 }
 
+BlockSource::BlockSource(Fluid *fluid, Eigen::Vector3i initialDimension, double initialSpacing, Eigen::Vector3d initialOffset)
+    : Source(fluid), m_initialDimension(initialDimension), m_initialSpacing(initialSpacing), m_initialOffset(initialOffset) {}
+
+
 void BlockSource::init() {
     auto& d = m_initialDimension;
 

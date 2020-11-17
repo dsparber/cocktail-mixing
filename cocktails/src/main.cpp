@@ -4,7 +4,7 @@
 #include "../include/BlockSource.h"
 #include "../include/GeneratingSource.h"
 #include "../include/FluidDefinitons.h"
-
+#include "../include/BoxScene.h"
 /*
  * This class is a GUI for our dummy simulation. It extends the basic GUI
  * defined in Gui.h. We could add more controls and visuals here, but we don't
@@ -13,11 +13,24 @@
 class MainGui : public Gui {
 public:
 	SphSimulation *simulation = nullptr;
-
+    int m_fluid_chooser;
+    vector<string> m_fluid_names;
+    Eigen::Vector3d m_scene_max;
+    Eigen::Vector3d m_scene_origin;
 	MainGui() {
+        m_fluid_chooser = 0;
+        for(auto& fluid : fluids::all) {
+            m_fluid_names.push_back(fluid->m_name);
+        }
+
+        m_scene_max << 2., 4., 1.2;
+        m_scene_origin = Eigen::Vector3d::Zero();
+
         simulation = new SphSimulation();
         simulation->m_fluids = fluids::all;
-        simulation->m_sources.push_back(new GeneratingSource(fluids::water));
+        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 8), 0.1, Eigen::Vector3d(0.1, 0.5, 0.1)));
+
+        simulation->m_scene = new BoxScene(m_scene_origin, m_scene_max);
 
 		setSimulation(simulation);
         simulation->init();
@@ -33,6 +46,21 @@ public:
         ImGui::InputDouble("Kernel Radius", &simulation->m_kernelRadius);
         ImGui::InputDouble("Grid Width", &simulation->m_gridWidth);
 
+        // Coloring
+        ImGui::Checkbox("Particle/Fluid coloring", &simulation->m_use_particle_color);
+
+        if(ImGui::CollapsingHeader("Boundary Box")) {
+
+            ImGui::InputDouble("Box scale x", &(m_scene_max[0]));
+            ImGui::InputDouble("Box scale y", &(m_scene_max[1]));
+            ImGui::InputDouble("Box scale z", &(m_scene_max[2]));
+
+            if(ImGui::Button("Reset boundary", ImVec2(-1, 0))) {
+                delete simulation->m_scene;
+                simulation->m_scene = new BoxScene(Eigen::Vector3d::Zero(), m_scene_max);
+            }
+        }
+
         if (ImGui::CollapsingHeader("Fluids")) {
             for (auto &fluid : fluids::all) {
                 if (ImGui::CollapsingHeader(fluid->m_name.c_str())) {
@@ -47,22 +75,31 @@ public:
 
         if (ImGui::CollapsingHeader("Sources")) {
 
+            ImGui::Combo("Fluid Type Chooser:", &m_fluid_chooser, m_fluid_names);
 
             if (ImGui::Button("Add block source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new BlockSource(fluids::water));
+                simulation->m_sources.push_back(new BlockSource(fluids::all[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
             if (ImGui::Button("Add generating source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new GeneratingSource(fluids::water));
+                simulation->m_sources.push_back(new GeneratingSource(fluids::all[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
+            if (ImGui::Button("Remove all sources", ImVec2(-1, 0))) {
+                simulation->m_sources.clear();
+            }
 
             int i = 0;
             for (auto &source : simulation->m_sources) {
 
                 if (ImGui::CollapsingHeader(("Source " + to_string(++i) + ": " + source->toString()).c_str())) {
+
+                    if(ImGui::Button("Remove", ImVec2(-1, 0))){
+                        auto it = std::find(simulation->m_sources.begin(), simulation->m_sources.end(), source);
+                        simulation->m_sources.erase(it);
+                    }
 
                     auto blockSource = dynamic_cast<BlockSource *>(source);
                     if (blockSource != nullptr) {

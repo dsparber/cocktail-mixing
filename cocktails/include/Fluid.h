@@ -11,13 +11,13 @@ public:
 
     std::string m_name;
 
-    double m_V;
     double m_viscosity;
     double m_stiffness;
     double m_restDensity;
     double m_particleMass;
+    Eigen::Vector3d m_color;
 
-    Fluid(std::string name, double V, double viscosity, double stiffness, double restDensity, double particleMass);
+    Fluid(std::string name, double viscosity, double stiffness, double restDensity, double particleMass, Eigen::Vector3d color);
 
     void reset();
 };

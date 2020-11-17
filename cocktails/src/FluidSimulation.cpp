@@ -41,11 +41,22 @@ void FluidSimulation::updateRenderGeometry() {
     C.resize(numParticles, 3);
 
     int i = 0;
-    for (auto &fluid : m_fluids) {
-        for (auto &particle : fluid->m_particles) {
-            V.row(i) << particle.m_pos.transpose();
-            C.row(i) << particle.m_color.transpose();
-            ++i;
+    if(m_use_particle_color){
+        for (auto &fluid : m_fluids) {
+            for (auto &particle : fluid->m_particles) {
+                V.row(i) << particle.m_pos.transpose();
+                C.row(i) << particle.m_color.transpose();
+                ++i;
+            }
+        }
+    }else{
+        // use fluid color
+        for (auto &fluid : m_fluids) {
+            for (auto &particle : fluid->m_particles) {
+                V.row(i) << particle.m_pos.transpose();
+                C.row(i) << fluid->m_color.transpose();
+                ++i;
+            }
         }
     }
 }

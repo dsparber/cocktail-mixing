@@ -21,8 +21,11 @@ public:
 	void updateRenderGeometry() override;
     void renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) override;
 
-protected:
+	bool m_use_particle_color;
+
 	Scene* m_scene;
+
+protected:
 
 	static void runParallel(int elementCount, const std::function<void(int, int)>& f);
 

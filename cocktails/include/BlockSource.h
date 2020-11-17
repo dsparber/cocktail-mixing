@@ -11,6 +11,8 @@ public:
 
     explicit BlockSource(Fluid *fluid);
 
+    BlockSource(Fluid *fluid, Eigen::Vector3i initialDimension, double initialSpacing, Eigen::Vector3d initialOffset);
+
     void init() override;
 
     double m_initialSpacing;

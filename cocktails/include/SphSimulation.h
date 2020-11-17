@@ -19,7 +19,7 @@ public:
 
 	double m_kernelRadius;
 	double m_gridWidth; // Width of a cell in the uniform grid, ideally equal to kernel Radius
-	
+
 private:
     void updateDensityAndPressure();
 	void updateForce();

@@ -24,7 +24,7 @@ void Gui::addParticlesToViewer() {
 	}
 
 	Eigen::MatrixXd particleColorsMat = Eigen::MatrixXd::Ones(n, 3);
-	bool hasColor = OwnCustomAttribute<vector<Eigen::Vector3d>>::get(m_pParticleData)->hasAttribute("color");	
+	bool hasColor = OwnCustomAttribute<vector<Eigen::Vector3d>>::get(m_pParticleData)->hasAttribute("color");
 	if (hasColor) {
 		auto c = OwnCustomAttribute<vector<Eigen::Vector3d>>::get(m_pParticleData)->getAttribute("color");
 		uint initializedRows = 0;
@@ -35,7 +35,7 @@ void Gui::addParticlesToViewer() {
 			initializedRows++;
 		}
 	}
-		
+
 	m_viewer.data_list[0].add_points(particlePositionsMat, particleColorsMat);
 }
 
@@ -45,15 +45,15 @@ void Gui::start() {
 		R"(
           ooooooooo.   oooooooooo.   .oooooo..o
           `888   `Y88. `888'   `Y8b d8P'    `Y8
-           888   .d88'  888     888 Y88bo.     
-           888ooo88P'   888oooo888'  `"Y8888o. 
+           888   .d88'  888     888 Y88bo.
+           888ooo88P'   888oooo888'  `"Y8888o.
            888          888    `88b      `"Y88b
            888          888    .88P oo     .d8P
           o888o        o888bood8P'  8""88888P'
 
   252-0546-00L Physically-Based Simulation in Computer Graphics @ ETH Zurich
   Course Exercise Framework
-  
+
   Shortcuts:
   [drag] Rotate scene                 |  [space] Start/pause simulation
   I,i    Toggle invert normals        |  A,a     Single step
@@ -192,10 +192,10 @@ bool Gui::drawCallback(igl::opengl::glfw::Viewer &viewer) {
 	}
 
 	p_simulator->render(viewer);
-	
+
 	//if(m_pParticleData)
 	//	addParticlesToViewer();
-	
+
 	return false;
 }
 
