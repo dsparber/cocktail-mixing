@@ -16,11 +16,9 @@ bool SphSimulation::advance() {
     // Needs to be called to update particle related data
     updateNeighbors();
 
-    setNeighbors();
     updateDensityAndPressure();
     updateForce();
     updateVelocityAndPosition();
-
 
 	return false;
 }
@@ -41,15 +39,6 @@ void SphSimulation::updateNeighbors() {
     }
 }
 
-void SphSimulation::setNeighbors() {
-    for (auto& fluid : m_fluids) {
-        for(auto& particle : fluid->m_particles) {
-            m_neighborSearch->getNeighbors(&particle, m_kernelRadius);
-        }
-    }
-}
-
-
 
 void SphSimulation::updateDensityAndPressure() {
     for (auto& fluid : m_fluids) {
@@ -60,6 +49,8 @@ void SphSimulation::updateDensityAndPressure() {
             // Actual computation
             for(int i = start; i < end; ++i) {
                 auto& particle = fluid->m_particles.at(i);
+
+                m_neighborSearch->getNeighbors(&particle, m_kernelRadius);
 
                 particle.m_density = 0.0;
 
