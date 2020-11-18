@@ -2,13 +2,17 @@
 #include "../include/UniformGridNeighborSearch.h"
 #include "../include/BoxScene.h"
 #include "../include/FluidDefinitons.h"
+#include "../include/BlockSource.h"
 #include <thread>
 
 using namespace std;
 
 FluidSimulation::FluidSimulation() : Simulation() {
     m_fluids = fluids::all;
-    m_scene = new BoxScene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(4, 4, 4));
+    m_sources = vector<Source*>();
+    m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 8), 0.1, Eigen::Vector3d(0.1, 0.5, 0.1)));
+    m_use_particle_color = false;
+    m_scene = new BoxScene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(2., 4., 1.2));
 }
 
 void FluidSimulation::init() {
@@ -39,15 +43,15 @@ void FluidSimulation::updateRenderGeometry() {
         numParticles += fluid->m_particles.size();
     }
 
-    V.resize(numParticles, 3);
-    C.resize(numParticles, 3);
+    V.setZero(numParticles, 3);
+    C.setZero(numParticles, 3);
 
     int i = 0;
     if(m_use_particle_color){
         for (auto &fluid : m_fluids) {
             for (auto &particle : fluid->m_particles) {
-                V.row(i) << particle.m_pos.transpose();
-                C.row(i) << particle.m_color.transpose();
+                V.row(i) = particle.m_pos.transpose();
+                C.row(i) = particle.m_color.transpose();
                 ++i;
             }
         }
@@ -55,8 +59,8 @@ void FluidSimulation::updateRenderGeometry() {
         // use fluid color
         for (auto &fluid : m_fluids) {
             for (auto &particle : fluid->m_particles) {
-                V.row(i) << particle.m_pos.transpose();
-                C.row(i) << fluid->m_color.transpose();
+                V.row(i) = particle.m_pos.transpose();
+                C.row(i) = fluid->m_color.transpose();
                 ++i;
             }
         }

@@ -34,19 +34,17 @@ public:
 
         simulation = new SphSimulation();
 
-        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 8), 0.1, Eigen::Vector3d(0.1, 0.5, 0.1)));
-        simulation->m_scene = new BoxScene(m_scene_origin, m_scene_max);
-
 		setSimulation(simulation);
         simulation->init();
 		start();
 	}
 
 	void drawSimulationParameterMenu() override {
-        
+
         ImGui::Combo("Choose Solver:", &m_solver_chooser, m_solver_names);
+
         if(ImGui::Button("Confirm", ImVec2(-1, 0))) {
-            delete simulation;
+
             switch(m_solver_chooser){
                 case 0:
                     simulation = new SphSimulation();
@@ -59,6 +57,10 @@ public:
                 default:
                     simulation = new SphSimulation();
             }
+
+            setSimulation(simulation);
+            simulation->init();
+
         }
 
 		// Simulation GUI
