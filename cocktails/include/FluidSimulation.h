@@ -14,6 +14,9 @@ public:
     std::vector<Fluid*> m_fluids;
     std::vector<Source*> m_sources;
 
+	bool m_use_particle_color;
+	Scene* m_scene;
+
     virtual void init() override;
 	virtual void resetMembers() override;
 	virtual bool advance() override;
@@ -21,9 +24,7 @@ public:
 	void updateRenderGeometry() override;
     void renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) override;
 
-	bool m_use_particle_color;
-
-	Scene* m_scene;
+	void getMinMaxParticlePosition(Eigen::Vector3d& minPosition, Eigen::Vector3d& maxPosition);
 
 protected:
 

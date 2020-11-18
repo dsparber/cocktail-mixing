@@ -4,8 +4,10 @@
 #include "../include/SphSimulation.h"
 #include "../include/BlockSource.h"
 #include "../include/GeneratingSource.h"
+#include "../include/CustomSource.h"
 #include "../include/FluidDefinitons.h"
 #include "../include/BoxScene.h"
+#include <math.h>
 /*
  * This class is a GUI for our dummy simulation. It extends the basic GUI
  * defined in Gui.h. We could add more controls and visuals here, but we don't
@@ -19,7 +21,9 @@ public:
     vector<string> m_solver_names;
     vector<string> m_fluid_names;
     Eigen::Vector3d m_scene_max;
-    Eigen::Vector3d m_scene_origin;
+    Eigen::Vector3d m_scene_min;
+
+    string m_particles_init_file;
 	MainGui() {
         m_fluid_chooser = 0;
         for(auto& fluid : fluids::all) {
@@ -30,23 +34,26 @@ public:
         m_solver_names = {"SPH", "DCSPH"};
 
         m_scene_max << 2., 4., 1.2;
-        m_scene_origin = Eigen::Vector3d::Zero();
+        m_scene_min << 0., 0., 0.;
+
+        m_particles_init_file = "/local/home/vyang/coursework/fluid-pbs/init/default.xyz";
 
         simulation = new SphSimulation();
 
-        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 8), 0.1, Eigen::Vector3d(0.1, 0.5, 0.1)));
-        simulation->m_scene = new BoxScene(m_scene_origin, m_scene_max);
-
 		setSimulation(simulation);
         simulation->init();
+
+        simulation->m_sources.push_back(new CustomSource(fluids::all[m_fluid_chooser], m_particles_init_file));
+        simulation->m_sources.back()->init();
 		start();
 	}
 
 	void drawSimulationParameterMenu() override {
-        
+
         ImGui::Combo("Choose Solver:", &m_solver_chooser, m_solver_names);
+
         if(ImGui::Button("Confirm", ImVec2(-1, 0))) {
-            delete simulation;
+
             switch(m_solver_chooser){
                 case 0:
                     simulation = new SphSimulation();
@@ -59,6 +66,10 @@ public:
                 default:
                     simulation = new SphSimulation();
             }
+
+            setSimulation(simulation);
+            simulation->init();
+
         }
 
 		// Simulation GUI
@@ -73,14 +84,42 @@ public:
 
         if(ImGui::CollapsingHeader("Boundary Box")) {
 
-            ImGui::InputDouble("Box scale x", &(m_scene_max[0]));
-            ImGui::InputDouble("Box scale y", &(m_scene_max[1]));
-            ImGui::InputDouble("Box scale z", &(m_scene_max[2]));
+            ImGui::InputDouble("Box min x", &(m_scene_min[0]));
+            ImGui::InputDouble("Box min y", &(m_scene_min[1]));
+            ImGui::InputDouble("Box min z", &(m_scene_min[2]));
+
+            ImGui::InputDouble("Box max x", &(m_scene_max[0]));
+            ImGui::InputDouble("Box max y", &(m_scene_max[1]));
+            ImGui::InputDouble("Box max z", &(m_scene_max[2]));
 
             if(ImGui::Button("Reset boundary", ImVec2(-1, 0))) {
                 delete simulation->m_scene;
-                simulation->m_scene = new BoxScene(Eigen::Vector3d::Zero(), m_scene_max);
+                simulation->m_scene = new BoxScene(m_scene_min, m_scene_max);
             }
+
+            if(ImGui::Button("Fit Bounding Box", ImVec2(-1, 0))) {
+                simulation->getMinMaxParticlePosition(m_scene_min, m_scene_max);
+
+
+                for(auto& source : simulation->m_sources) {
+                    auto generatingSource = dynamic_cast<GeneratingSource *>(source);
+                    if (generatingSource != nullptr) {
+                        for(int i = 0; i < 3; i++) {
+                            m_scene_min[i] = std::min(generatingSource->m_position[i] - generatingSource->m_positionStdDeviation, m_scene_min[i]);
+                            m_scene_max[i] = std::max(generatingSource->m_position[i] + generatingSource->m_positionStdDeviation, m_scene_max[i]);
+                        }
+                    }
+                }
+
+                m_scene_min -= Eigen::Vector3d::Constant(0.3);
+                m_scene_max += Eigen::Vector3d::Constant(0.3);
+
+                m_scene_min.y() = std::min(0.0, m_scene_min.y());
+
+                delete simulation->m_scene;
+                simulation->m_scene = new BoxScene(m_scene_min, m_scene_max);
+            }
+
         }
 
         if (ImGui::CollapsingHeader("Fluids")) {
@@ -108,6 +147,14 @@ public:
                 simulation->m_sources.push_back(new GeneratingSource(fluids::all[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
+
+
+            if (ImGui::Button("Add source from file", ImVec2(-1, 0))) {
+                m_particles_init_file = igl::file_dialog_open();
+                simulation->m_sources.push_back(new CustomSource(fluids::all[m_fluid_chooser], m_particles_init_file));
+                simulation->m_sources.back()->init();
+            }
+
 
             if (ImGui::Button("Remove all sources", ImVec2(-1, 0))) {
                 simulation->m_sources.clear();

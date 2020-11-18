@@ -72,6 +72,8 @@ void Gui::start() {
 	m_viewer.core().camera_zoom = 0.1;
 	m_viewer.core().object_scale = 1.0;
 
+	m_viewer.core().background_color << 0.5f, 0.5f, 0.5f, 1.0f;
+
 	// setting up menu
 	igl::opengl::glfw::imgui::ImGuiMenu menu;
 	m_viewer.plugins.push_back(&menu);

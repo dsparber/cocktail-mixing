@@ -2,6 +2,7 @@
 #include "../include/SphSimulation.h"
 #include "../include/Constants.h"
 #include "../include/UniformGridNeighborSearch.h"
+#include <math.h>
 
 SphSimulation::SphSimulation() : FluidSimulation() {
     m_dt = 0.008;
@@ -65,7 +66,8 @@ void SphSimulation::updateDensityAndPressure() {
             }
         };
 
-        runParallel(fluid->m_particles.size(), f);
+        if(fluid->m_particles.size() > 0)
+            runParallel(fluid->m_particles.size(), f);
     }
 }
 
@@ -119,18 +121,24 @@ void SphSimulation::updateForce() {
             }
         };
 
-        runParallel(fluid->m_particles.size(), f);
+        if(fluid->m_particles.size() > 0)
+            runParallel(fluid->m_particles.size(), f);
     }
 }
 
 
 void SphSimulation::updateVelocityAndPosition() {
+    double max_vel = 0.0;
     for (auto& fluid : m_fluids) {
         // Define function for parallelism
         auto f = [fluid, this](int start, int end) {
             for (int i = start; i < end; ++i) {
                 auto &particle = fluid->m_particles.at(i);
                 particle.m_vel += m_dt * particle.m_acc;
+                max_vel = std::max(max_vel, particle.m_vel.norm());
+                // if(particle.m_vel.norm() > 1.0) {
+                //     particle.m_vel.normalize();
+                // }
                 Eigen::Vector3d nextPosition = particle.m_pos + m_dt * particle.m_vel;
                 if (m_scene->outOfBoundary(nextPosition)) {
                     m_scene->updateOnBoundaryCollision(particle, m_dt);
@@ -139,7 +147,9 @@ void SphSimulation::updateVelocityAndPosition() {
                 }
             }
         };
-        runParallel(fluid->m_particles.size(), f);
+
+        if(fluid->m_particles.size() > 0)
+            runParallel(fluid->m_particles.size(), f);
     }
 
     return;
