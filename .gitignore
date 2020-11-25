@@ -3,5 +3,7 @@ build/
 .idea/
 .vscode/
 
+.venv/
+
 cmake-build-debug/
 cmake-build-release/

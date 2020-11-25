@@ -1,8 +1,5 @@
 #include "../include/FluidSimulation.h"
-#include "../include/UniformGridNeighborSearch.h"
-#include "../include/BoxScene.h"
 #include "../include/FluidDefinitons.h"
-#include "../include/BlockSource.h"
 #include <thread>
 
 using namespace std;
@@ -10,11 +7,7 @@ using namespace std;
 FluidSimulation::FluidSimulation() : Simulation() {
     m_fluids = fluids::all;
     m_sources = vector<Source*>();
-    // m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 8), 0.1, Eigen::Vector3d(0.1, 0.5, 0.1)));
     m_use_particle_color = false;
-    // m_scene = new BoxScene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(2., 4., 1.2));
-    m_scene = new BoxScene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(1., 1., 1.));
-
 }
 
 void FluidSimulation::init() {
@@ -72,7 +65,6 @@ void FluidSimulation::updateRenderGeometry() {
 void FluidSimulation::renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) {
     viewer.data().point_size = 10;
     viewer.data().set_points(V, C);
-    m_scene->draw(viewer);
 }
 
 void FluidSimulation::runParallel(int elementCount, const std::function<void(int, int)> &f) {

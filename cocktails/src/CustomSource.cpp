@@ -3,7 +3,7 @@
 #include <fstream>
 #include <iostream>
 
-CustomSource::CustomSource(Fluid* fluid, std::string file_path) : Source(fluid) {
+CustomSource::CustomSource(Fluid* fluid, std::string& file_path) : Source(fluid) {
     m_file_path = file_path;
 }
 

@@ -1,13 +1,11 @@
 #include <igl/writeOFF.h>
 #include "Gui.h"
 #include "../include/DCSPHSimulation.h"
-#include "../include/SphSimulation.h"
 #include "../include/BlockSource.h"
 #include "../include/GeneratingSource.h"
 #include "../include/CustomSource.h"
 #include "../include/FluidDefinitons.h"
 #include "../include/BoxScene.h"
-#include <math.h>
 /*
  * This class is a GUI for our dummy simulation. It extends the basic GUI
  * defined in Gui.h. We could add more controls and visuals here, but we don't
@@ -24,9 +22,11 @@ public:
     Eigen::Vector3d m_scene_min;
 
     string m_particles_init_file;
+    string m_boundary_particles_path;
+
 	MainGui() {
         m_fluid_chooser = 0;
-        for(auto& fluid : fluids::all) {
+        for(auto& fluid : fluids::allFluids) {
             m_fluid_names.push_back(fluid->m_name);
         }
 
@@ -36,14 +36,14 @@ public:
         m_scene_max << 2., 4., 1.2;
         m_scene_min << 0., 0., 0.;
 
-        m_particles_init_file = "/local/home/vyang/coursework/fluid-pbs/init/default.xyz";
+        m_boundary_particles_path = "../../data/boundary.xyz";
 
         simulation = new SphSimulation();
 
 		setSimulation(simulation);
         simulation->init();
 
-        simulation->m_sources.push_back(new CustomSource(fluids::all[m_fluid_chooser], m_particles_init_file));
+        simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
 		start();
 	}
@@ -139,19 +139,19 @@ public:
             ImGui::Combo("Fluid Type Chooser:", &m_fluid_chooser, m_fluid_names);
 
             if (ImGui::Button("Add block source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new BlockSource(fluids::all[m_fluid_chooser]));
+                simulation->m_sources.push_back(new BlockSource(fluids::allFluids[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
             if (ImGui::Button("Add generating source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new GeneratingSource(fluids::all[m_fluid_chooser]));
+                simulation->m_sources.push_back(new GeneratingSource(fluids::allFluids[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
 
             if (ImGui::Button("Add source from file", ImVec2(-1, 0))) {
                 m_particles_init_file = igl::file_dialog_open();
-                simulation->m_sources.push_back(new CustomSource(fluids::all[m_fluid_chooser], m_particles_init_file));
+                simulation->m_sources.push_back(new CustomSource(fluids::allFluids[m_fluid_chooser], m_particles_init_file));
                 simulation->m_sources.back()->init();
             }
 

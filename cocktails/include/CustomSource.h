@@ -8,7 +8,7 @@
 
 class CustomSource : public Source {
 public:
-    CustomSource(Fluid* fluid, std::string file_path);
+    CustomSource(Fluid* fluid, std::string& file_path);
 
     void init() override;
 

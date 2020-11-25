@@ -6,11 +6,15 @@
 
 namespace fluids {
 
+    extern Fluid *boundary;
+
     extern Fluid *water;
 
     extern Fluid *honey;
 
     extern std::vector<Fluid*> all;
+
+    extern std::vector<Fluid*> allFluids;
 
 }
 
