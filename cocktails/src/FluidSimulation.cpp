@@ -76,7 +76,7 @@ void FluidSimulation::updateRenderGeometry() {
 }
 
 void FluidSimulation::renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) {
-    viewer.data().point_size = 10;
+    viewer.data().point_size = 2;
     viewer.data().set_points(V, C);
 }
 
