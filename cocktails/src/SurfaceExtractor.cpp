@@ -7,7 +7,7 @@
 #include <igl/copyleft/marching_cubes.h>
 
 SurfaceExtractor::SurfaceExtractor() {
-    m_info = SurfaceExtractorInfo(0.05, 0.4, 0.1, 0.5);
+    m_info = SurfaceExtractorInfo(0.05, 0.4, 0.1, 100.0);
 }
 
 void SurfaceExtractor::createMesh(std::vector<Particle>& particles, std::string file_path) {
@@ -32,9 +32,8 @@ void SurfaceExtractor::createMesh(std::vector<Particle>& particles, std::string 
 
 
     // enlarge min max box a bit
-
-    m -= 0.3 * (M - m);
-    M += 0.3 * (M - m);
+    m -= 0.2 * (M - m);
+    M += 0.2 * (M - m);
 
     Eigen::Vector3i gridDim;
     gridDim = ((M - m).array() / res).cast<int>();

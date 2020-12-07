@@ -52,18 +52,6 @@ public:
 
         ImGui::Combo("Choose Solver:", &m_solver_chooser, m_solver_names);
 
-        if(ImGui::Button("Recording", ImVec2(-1, 0))) {
-            simulation->toggleRecording();
-        }
-
-        if(ImGui::Button("Save Particles", ImVec2(-1, 0))) {
-            simulation->exportParticles("particles.txt");
-        }
-
-        if(ImGui::Button("Save Mesh", ImVec2(-1, 0))) {
-            simulation->exportMesh(".");
-        }
-
         if(ImGui::Button("Confirm", ImVec2(-1, 0))) {
 
             switch(m_solver_chooser){
@@ -84,7 +72,8 @@ public:
 
         }
 
-		ImGui::InputDouble("Isolevel", &simulation->m_level);
+        // Recording
+ 
 
 		// Simulation GUI
 		ImGui::InputDouble("Simulation dt", &simulation->m_dt);
@@ -95,6 +84,24 @@ public:
 
         // Coloring
         ImGui::Checkbox("Particle/Fluid coloring", &simulation->m_use_particle_color);
+
+       if(ImGui::CollapsingHeader("Recording")) {
+
+            if(ImGui::Button("Record", ImVec2(-1, 0))) {
+                simulation->toggleRecording();
+                std::cout<<"Toggle Recording\n";
+            }
+
+            if(ImGui::Button("Save Particles", ImVec2(-1, 0))) {
+                simulation->exportParticles("particles.txt");
+            }
+
+            if(ImGui::Button("Save Mesh", ImVec2(-1, 0))) {
+                simulation->exportMesh(".");
+            }
+            ImGui::InputDouble("Isolevel", &simulation->m_level);
+
+        }
 
         if(ImGui::CollapsingHeader("Boundary Box")) {
 
