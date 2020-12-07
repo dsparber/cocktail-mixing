@@ -1,6 +1,8 @@
 #include "../include/FluidSimulation.h"
 #include "../include/FluidDefinitons.h"
+#include "../include/SurfaceExtractor.h"
 #include <thread>
+#include <fstream>
 
 using namespace std;
 
@@ -8,6 +10,10 @@ FluidSimulation::FluidSimulation() : Simulation() {
     m_fluids = fluids::all;
     m_sources = vector<Source*>();
     m_use_particle_color = false;
+    m_save_simulation = false;
+    m_save_freq = 100;
+    m_surface_extractor = new SurfaceExtractor();
+    m_level = m_surface_extractor->m_info._isosurface;
 }
 
 void FluidSimulation::init() {
@@ -29,6 +35,13 @@ bool FluidSimulation::advance() {
         source->advance(m_time);
     }
     m_step++;
+
+    if(m_save_simulation && (m_step % m_save_freq == 0)) {
+        for(auto &fluid : m_fluids) {
+            m_surface_extractor->createMesh(fluid->m_particles, fluid->m_name +"_"+ std::to_string(m_step) + ".obj");
+        }
+    }
+
     return false;
 }
 
@@ -98,5 +111,37 @@ void FluidSimulation::getMinMaxParticlePosition(Eigen::Vector3d& minPosition, Ei
                 maxPosition[i] = std::max(maxPosition[i], particle.m_pos[i]);
             }
         }
+    }
+}
+
+void FluidSimulation::toggleRecording() {
+    m_save_simulation = !m_save_simulation;
+    if(m_save_simulation) {
+        std::cout << "Start recording\n";
+    }else{
+        std::cout << "Stop recording\n";
+    }
+}
+
+void FluidSimulation::exportParticles(std::string exportPath) {
+    ofstream particleFile;
+    particleFile.open(exportPath);
+    for(auto &fluid : m_fluids) {
+        if(fluid->m_particles.size() > 0) {
+            particleFile << fluid->m_name <<" "<< fluid->m_particles.size() << "\n";
+            for(auto& particle : fluid->m_particles) {
+                particleFile << particle.m_pos.transpose() << "\n";
+            }
+        }
+    }
+    particleFile.close();
+}
+
+void FluidSimulation::exportMesh(std::string exportPath) {
+    m_surface_extractor->m_info._isosurface = m_level;
+    for(auto &fluid : m_fluids) {
+        if(fluid->m_name == "Boundary") continue;
+        std::string filePath = exportPath + "/" + fluid->m_name + "_" + std::to_string(m_step) + ".obj";
+        m_surface_extractor->createMesh(fluid->m_particles, filePath);
     }
 }

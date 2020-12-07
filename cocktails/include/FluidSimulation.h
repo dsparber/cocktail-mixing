@@ -7,6 +7,8 @@
 #include "Fluid.h"
 #include "Source.h"
 
+class SurfaceExtractor; 
+
 class FluidSimulation : public Simulation {
 public:
     explicit FluidSimulation();
@@ -26,6 +28,12 @@ public:
 
 	void getMinMaxParticlePosition(Eigen::Vector3d& minPosition, Eigen::Vector3d& maxPosition);
 
+	void toggleRecording();
+	void exportParticles(std::string exportPath);
+	void exportMesh(std::string exportPath);
+	
+	double m_level;
+
 protected:
 
 	static void runParallel(int elementCount, const std::function<void(int, int)>& f);
@@ -34,6 +42,10 @@ private:
 	Eigen::MatrixXd V;  // Vertex positions
     Eigen::MatrixXi F;  // Faces (indices of vertices)
 	Eigen::MatrixXd C;  // Colors per face
+	bool m_save_simulation;
+	int m_save_freq;
+	SurfaceExtractor* m_surface_extractor;
+
 };
 
 #endif // PBS_PARTICLE_SIMULATION_H

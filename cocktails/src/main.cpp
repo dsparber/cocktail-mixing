@@ -52,6 +52,18 @@ public:
 
         ImGui::Combo("Choose Solver:", &m_solver_chooser, m_solver_names);
 
+        if(ImGui::Button("Recording", ImVec2(-1, 0))) {
+            simulation->toggleRecording();
+        }
+
+        if(ImGui::Button("Save Particles", ImVec2(-1, 0))) {
+            simulation->exportParticles("particles.txt");
+        }
+
+        if(ImGui::Button("Save Mesh", ImVec2(-1, 0))) {
+            simulation->exportMesh(".");
+        }
+
         if(ImGui::Button("Confirm", ImVec2(-1, 0))) {
 
             switch(m_solver_chooser){
@@ -71,6 +83,8 @@ public:
             simulation->init();
 
         }
+
+		ImGui::InputDouble("Isolevel", &simulation->m_level);
 
 		// Simulation GUI
 		ImGui::InputDouble("Simulation dt", &simulation->m_dt);

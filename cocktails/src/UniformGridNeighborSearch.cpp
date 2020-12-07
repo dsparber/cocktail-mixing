@@ -3,15 +3,14 @@
 
 UniformGridNeighborSearch::UniformGridNeighborSearch(double gridWidth) : gridWidth(gridWidth) {}
 
-std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Particle* particle, double radius) const {
+std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Eigen::Vector3d& pos, double radius) const {
     int x, y, z;
-    std::tie(x, y, z) = getIndex(particle->m_pos);
+    std::tie(x, y, z) = getIndex(pos);
 
     double epsilon = gridWidth / 10000;
     double radiusSquared = pow(radius, 2);
 
-    particle->m_neighbors.clear();
-
+    std::vector<Particle*> neighbors;
     int delta = int(ceil(radius / gridWidth));
     for (int dx = -delta; dx <= delta; ++dx) {
         auto gridX = uniformGrid.find(x + dx);
@@ -29,13 +28,19 @@ std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Particle* particl
                     continue;
                 }
                 for (auto neighbor : gridXYZ->second) {
-                    if ((neighbor->m_pos - particle->m_pos).squaredNorm() <= radiusSquared + epsilon) {
-                        particle->m_neighbors.push_back(neighbor);
+                    if ((neighbor->m_pos - pos).squaredNorm() <= radiusSquared + epsilon) {
+                        neighbors.push_back(neighbor);
                     }
                 }
             }
         }
     }
+    return neighbors;
+}
+
+std::vector<Particle*> UniformGridNeighborSearch::getNeighbors(Particle* particle, double radius) const {
+    particle->m_neighbors.clear();
+    particle->m_neighbors = getNeighbors(particle->m_pos, radius);
     return particle->m_neighbors;
 }
 
