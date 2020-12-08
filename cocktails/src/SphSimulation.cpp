@@ -2,6 +2,7 @@
 #include "../include/SphSimulation.h"
 #include "../include/Constants.h"
 #include "../include/UniformGridNeighborSearch.h"
+#include "../include/FluidDefinitons.h"
 
 SphSimulation::SphSimulation() : FluidSimulation() {
     m_dt = 0.008;
@@ -126,13 +127,18 @@ void SphSimulation::updateForce() {
 
 void SphSimulation::updateVelocityAndPosition() {
     for (auto& fluid : m_fluids) {
+
+        if (fluid == fluids::boundary) {
+            continue;
+        }
+
         // Define function for parallelism
         auto f = [fluid, this](int start, int end) {
             for (int i = start; i < end; ++i) {
                 auto &particle = fluid->m_particles.at(i);
                 particle.m_vel += m_dt * particle.m_acc;
                 Eigen::Vector3d nextPosition = particle.m_pos + m_dt * particle.m_vel;
-                if (m_scene->outOfBoundary(nextPosition)) {
+                if (m_scene != nullptr && m_scene->outOfBoundary(nextPosition)) {
                     m_scene->updateOnBoundaryCollision(particle, m_dt);
                 } else {
                     particle.m_pos = nextPosition;
@@ -140,20 +146,6 @@ void SphSimulation::updateVelocityAndPosition() {
             }
         };
         runParallel(fluid->m_particles.size(), f);
-    }
-
-    return;
-    // DEBUG Stuff
-    double maxPressure = 0;
-    for (auto& fluid : m_fluids) {
-        for(auto& particle : fluid->m_particles) {
-            maxPressure = std::max(maxPressure, particle.m_pressure);
-        }
-    }
-    for (auto& fluid : m_fluids) {
-        for(auto& particle : fluid->m_particles) {
-            particle.m_color << abs(particle.m_pressure) / maxPressure, 0, 0;
-        }
     }
 }
 

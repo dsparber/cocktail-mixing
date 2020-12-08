@@ -15,10 +15,13 @@ public:
 
 	virtual bool outOfBoundary(const Eigen::Vector3d& pos) = 0;
 
+	virtual void getMinMax(Eigen::Vector3d& minCoordinate, Eigen::Vector3d& maxCoordinate) = 0;
+
 	void updateOnBoundaryCollision(Particle& particle, const double dt) {
 		Eigen::Vector3d intersection, normal;
 		getIntersectionPointAndSurfaceNormal(particle.m_pos, dt * particle.m_vel, intersection, normal);
 		particle.m_vel = 2 * normal.dot(-particle.m_vel) * normal + particle.m_vel; // reflect on normal
+		particle.m_vel *= 0.5;
 		double remainingDt = dt - (intersection - particle.m_pos).norm();
 		particle.m_pos = intersection;
 

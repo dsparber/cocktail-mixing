@@ -14,6 +14,8 @@ public:
 
     std::vector<Particle*> getNeighbors(Particle* particle, double radius) const override;
 
+    std::vector<Particle*> getNeighbors(Eigen::Vector3d& pos, double radius) const override;
+
     void addParticle(Particle *particle) override;
 
 private:

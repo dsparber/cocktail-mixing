@@ -10,6 +10,14 @@ Simulation of mixing fluids for Physically-based Simulation at ETH Zurich
 | Daniel Sparber | dsparber@ethz.ch | 17-948-191 |
 | Jela Kovacevic | jelak@ethz.ch    | 15-923-428 |
 
+## TODO
+- Scene loader, initialize file format to load the simulation
+- Ability to save the current simulation state.
+- Debug DCSPH
+- Rendering
+- Implement Diffusion Equation
+- (Implement Surface Tension)
+
 
 ## References
 

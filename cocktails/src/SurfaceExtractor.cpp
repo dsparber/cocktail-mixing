@@ -1,0 +1,74 @@
+#include "../include/SurfaceExtractor.h"
+#include "../include/UniformGridNeighborSearch.h"
+#include "../include/Particle.h"
+#include "../include/Kernels.h"
+
+#include <igl/writeOBJ.h>
+#include <igl/copyleft/marching_cubes.h>
+
+SurfaceExtractor::SurfaceExtractor() {
+    m_res = 0.05;
+    m_kernel_radius = 0.4;
+    m_isolevel = 1.0;
+    m_m = Eigen::Vector3d(-1, 0, -1);
+    m_M = Eigen::Vector3d(2, 4, 2);
+}
+
+void SurfaceExtractor::createMesh(std::vector<Particle>& particles, std::string file_path) {
+    // initialize uniform grid
+    UniformGridNeighborSearch* neighborSearch = new UniformGridNeighborSearch(0.1); // take resolution of the simulation
+
+    if(particles.size() <= 0) {
+        return;
+    }
+
+    // find bounding box
+    Eigen::Vector3d m(particles.begin()->m_pos), M(particles.begin()->m_pos);
+    for(auto& particle : particles){
+        neighborSearch->addParticle(&particle);
+    }
+
+    Eigen::Vector3i gridDim;
+    gridDim = ((m_M - m_m).array() / m_res).cast<int>();
+
+    int gs = gridDim.x() * gridDim.y() * gridDim.z();
+
+    Eigen::MatrixXd densities(gs, 1);
+    densities.setZero();
+    Eigen::MatrixXd points(gs, 3);
+
+    int c = 0;
+    for(int x = 0; x < gridDim.x(); x++) {
+        Eigen::Vector3d pos;
+        pos[0] = m_m.x() + x*m_res;
+        for(int y = 0; y < gridDim.y(); y++) {
+            pos[1] = m_m.y() + y*m_res;
+            for(int z = 0; z  < gridDim.z(); z++) {
+                pos[2] = m_m.z() + z*m_res;
+                points.row(c) = pos.transpose();
+
+                //calculate density using SPH kernel
+                std::vector<Particle*> neighbors;
+                neighbors = neighborSearch->getNeighbors(pos, m_kernel_radius);
+                double density = 0.0;
+                for(Particle* neighbor : neighbors) {
+                    double r2 = (pos - neighbor->m_pos).squaredNorm();
+                    density += neighbor->m_mass * kernels::wPoly6(r2, m_kernel_radius);
+                }
+                densities(c) = density;
+                c++;
+            }
+        }
+    }
+
+    Eigen::MatrixXd vertices;
+    Eigen::MatrixXi faces;
+
+    // marching cubes
+    igl::copyleft::marching_cubes(densities, points, gridDim.x(), gridDim.y(), gridDim.z(), m_isolevel, vertices, faces);
+
+    // write to obj
+    igl::writeOBJ(file_path, vertices, faces);
+    std::cout << "Save mesh to " << file_path << '\n';
+
+}

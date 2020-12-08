@@ -1,9 +1,9 @@
 #include <igl/writeOFF.h>
 #include "Gui.h"
 #include "../include/DCSPHSimulation.h"
-#include "../include/SphSimulation.h"
 #include "../include/BlockSource.h"
 #include "../include/GeneratingSource.h"
+#include "../include/CustomSource.h"
 #include "../include/FluidDefinitons.h"
 #include "../include/BoxScene.h"
 /*
@@ -19,10 +19,14 @@ public:
     vector<string> m_solver_names;
     vector<string> m_fluid_names;
     Eigen::Vector3d m_scene_max;
-    Eigen::Vector3d m_scene_origin;
+    Eigen::Vector3d m_scene_min;
+
+    string m_particles_init_file;
+    string m_boundary_particles_path;
+
 	MainGui() {
         m_fluid_chooser = 0;
-        for(auto& fluid : fluids::all) {
+        for(auto& fluid : fluids::allFluids) {
             m_fluid_names.push_back(fluid->m_name);
         }
 
@@ -30,13 +34,21 @@ public:
         m_solver_names = {"SPH", "DCSPH"};
 
         m_scene_max << 2., 4., 1.2;
-        m_scene_origin = Eigen::Vector3d::Zero();
+        m_scene_min << 0., 0., 0.;
 
-        simulation = new SphSimulation();
+        m_boundary_particles_path = "../../data/glass.xyz";
 
-		setSimulation(simulation);
+        simulation = new DCSPHSimulation();
+
         simulation->init();
-		start();
+
+        simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
+        simulation->m_sources.back()->init();
+        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(8, 8, 8), 0.11, Eigen::Vector3d(0.1, 3, 0.1)));
+        simulation->m_sources.back()->init();
+        simulation->setScene(new BoxScene(Eigen::Vector3d(-1,0,-1), Eigen::Vector3d(2,5,2)));
+        setSimulation(simulation);
+        start();
 	}
 
 	void drawSimulationParameterMenu() override {
@@ -73,16 +85,64 @@ public:
         // Coloring
         ImGui::Checkbox("Particle/Fluid coloring", &simulation->m_use_particle_color);
 
+        // Recording
+        if(ImGui::CollapsingHeader("Custom Recording")) {
+
+            ImGui::InputText("Store Particles (.xyz) in", simulation->m_particles_path);
+            ImGui::InputText("Store Meshes (.obj) in", simulation->m_mesh_path);
+
+            if(ImGui::Button("Record", ImVec2(-1, 0))) {
+                simulation->toggleRecording();
+                std::cout<<"Toggle Recording\n";
+            }
+
+            if(ImGui::Button("Save Particles", ImVec2(-1, 0))) {
+                simulation->exportParticles();
+            }
+
+            if(ImGui::Button("Save Mesh", ImVec2(-1, 0))) {
+                simulation->exportMesh();
+            }
+            ImGui::InputDouble("Isolevel", &simulation->m_surface_extractor->m_isolevel);
+            ImGui::InputDouble("Resolution", &simulation->m_surface_extractor->m_res);
+            ImGui::InputDouble("Kernel Radius Rec", &simulation->m_surface_extractor->m_kernel_radius);
+        }
+
         if(ImGui::CollapsingHeader("Boundary Box")) {
 
-            ImGui::InputDouble("Box scale x", &(m_scene_max[0]));
-            ImGui::InputDouble("Box scale y", &(m_scene_max[1]));
-            ImGui::InputDouble("Box scale z", &(m_scene_max[2]));
+            ImGui::InputDouble("Box min x", &(m_scene_min[0]));
+            ImGui::InputDouble("Box min y", &(m_scene_min[1]));
+            ImGui::InputDouble("Box min z", &(m_scene_min[2]));
+
+            ImGui::InputDouble("Box max x", &(m_scene_max[0]));
+            ImGui::InputDouble("Box max y", &(m_scene_max[1]));
+            ImGui::InputDouble("Box max z", &(m_scene_max[2]));
 
             if(ImGui::Button("Reset boundary", ImVec2(-1, 0))) {
-                delete simulation->m_scene;
-                simulation->m_scene = new BoxScene(Eigen::Vector3d::Zero(), m_scene_max);
+                simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
             }
+
+            if(ImGui::Button("Fit Bounding Box", ImVec2(-1, 0))) {
+                simulation->getMinMaxParticlePosition(m_scene_min, m_scene_max);
+
+                for(auto& source : simulation->m_sources) {
+                    auto generatingSource = dynamic_cast<GeneratingSource *>(source);
+                    if (generatingSource != nullptr) {
+                        for(int i = 0; i < 3; i++) {
+                            m_scene_min[i] = std::min(generatingSource->m_position[i] - generatingSource->m_positionStdDeviation, m_scene_min[i]);
+                            m_scene_max[i] = std::max(generatingSource->m_position[i] + generatingSource->m_positionStdDeviation, m_scene_max[i]);
+                        }
+                    }
+                }
+
+                m_scene_min -= Eigen::Vector3d::Constant(0.3);
+                m_scene_max += Eigen::Vector3d::Constant(0.3);
+
+                m_scene_min.y() = std::min(0.0, m_scene_min.y());
+
+                simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
+            }
+
         }
 
         if (ImGui::CollapsingHeader("Fluids")) {
@@ -102,14 +162,22 @@ public:
             ImGui::Combo("Fluid Type Chooser:", &m_fluid_chooser, m_fluid_names);
 
             if (ImGui::Button("Add block source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new BlockSource(fluids::all[m_fluid_chooser]));
+                simulation->m_sources.push_back(new BlockSource(fluids::allFluids[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
             if (ImGui::Button("Add generating source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new GeneratingSource(fluids::all[m_fluid_chooser]));
+                simulation->m_sources.push_back(new GeneratingSource(fluids::allFluids[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
+
+
+            if (ImGui::Button("Add source from file", ImVec2(-1, 0))) {
+                m_particles_init_file = igl::file_dialog_open();
+                simulation->m_sources.push_back(new CustomSource(fluids::allFluids[m_fluid_chooser], m_particles_init_file));
+                simulation->m_sources.back()->init();
+            }
+
 
             if (ImGui::Button("Remove all sources", ImVec2(-1, 0))) {
                 simulation->m_sources.clear();

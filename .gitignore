@@ -1,7 +1,12 @@
-build/
+build*/
+
+particles/
+mesh/
 
 .idea/
 .vscode/
+
+.venv/
 
 cmake-build-debug/
 cmake-build-release/

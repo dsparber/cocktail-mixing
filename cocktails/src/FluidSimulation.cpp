@@ -1,18 +1,21 @@
 #include "../include/FluidSimulation.h"
-#include "../include/UniformGridNeighborSearch.h"
-#include "../include/BoxScene.h"
 #include "../include/FluidDefinitons.h"
-#include "../include/BlockSource.h"
+#include "../include/BoxScene.h"
 #include <thread>
+#include <fstream>
 
 using namespace std;
 
 FluidSimulation::FluidSimulation() : Simulation() {
     m_fluids = fluids::all;
     m_sources = vector<Source*>();
-    m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 8), 0.1, Eigen::Vector3d(0.1, 0.5, 0.1)));
     m_use_particle_color = false;
-    m_scene = new BoxScene(Eigen::Vector3d(0, 0, 0), Eigen::Vector3d(2., 4., 1.2));
+    m_save_simulation = false;
+    m_save_freq = 100;
+    m_surface_extractor = new SurfaceExtractor();
+    m_mesh_path = '.';
+    m_particles_path = '.';
+    m_scene = new BoxScene(Eigen::Vector3d(0,0,0), Eigen::Vector3d(1,1,1));
 }
 
 void FluidSimulation::init() {
@@ -34,6 +37,13 @@ bool FluidSimulation::advance() {
         source->advance(m_time);
     }
     m_step++;
+
+    // save mesh
+    if(m_save_simulation && (m_step % m_save_freq == 0)) {
+        exportMesh();
+        exportParticles();
+    }
+
     return false;
 }
 
@@ -68,9 +78,8 @@ void FluidSimulation::updateRenderGeometry() {
 }
 
 void FluidSimulation::renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) {
-    viewer.data().point_size = 10;
+    viewer.data().point_size = 2;
     viewer.data().set_points(V, C);
-    m_scene->draw(viewer);
 }
 
 void FluidSimulation::runParallel(int elementCount, const std::function<void(int, int)> &f) {
@@ -90,5 +99,59 @@ void FluidSimulation::runParallel(int elementCount, const std::function<void(int
 
     for (auto& thread : threads) {
         thread.join();
+    }
+}
+
+
+void FluidSimulation::getMinMaxParticlePosition(Eigen::Vector3d& minPosition, Eigen::Vector3d& maxPosition) {
+    minPosition = Eigen::Vector3d(INFINITY, INFINITY, INFINITY);
+    maxPosition = Eigen::Vector3d(-INFINITY, -INFINITY, -INFINITY);
+    for (auto &fluid : m_fluids) {
+        for (auto &particle : fluid->m_particles) {
+            for(int i = 0; i < 3; i++) {
+                minPosition[i] = std::min(minPosition[i], particle.m_pos[i]);
+                maxPosition[i] = std::max(maxPosition[i], particle.m_pos[i]);
+            }
+        }
+    }
+}
+
+void FluidSimulation::setScene(Scene* scene) {
+    if(m_scene) delete m_scene;
+    m_scene = scene;
+    // adjust bounding box for marching cubes
+    scene->getMinMax(m_surface_extractor->m_m, m_surface_extractor->m_M);
+}
+
+void FluidSimulation::toggleRecording() {
+    m_save_simulation = !m_save_simulation;
+    if(m_save_simulation) {
+        std::cout << "Start recording\n";
+    }else{
+        std::cout << "Stop recording\n";
+    }
+}
+
+void FluidSimulation::exportParticles() {
+    for(auto &fluid : m_fluids) {
+        // no need to save save non existant or fixed particles
+        if(fluid->m_particles.size() > 0 && fluid->m_name != "Boundary") {
+            ofstream particleFile;
+            string filepath = m_particles_path + "/" + fluid->m_name + "_" + std::to_string(m_step) + ".xyz";
+            particleFile.open(filepath);
+            for(auto& particle : fluid->m_particles) {
+                particleFile << particle.m_pos.transpose() << "\n";
+            }
+            particleFile.close();
+            std::cout<< "Written particles to " << filepath << "\n";
+        }
+    }
+}
+
+void FluidSimulation::exportMesh() {
+    for(auto &fluid : m_fluids) {
+        if(fluid->m_name == "Boundary") continue;
+        std::string filePath = m_mesh_path + "/" + fluid->m_name + "_" + std::to_string(m_step) + ".obj";
+        m_surface_extractor->createMesh(fluid->m_particles, filePath);
     }
 }
