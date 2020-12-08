@@ -2,7 +2,6 @@
 
 
 BoxScene::BoxScene(const Eigen::Vector3d &m, const Eigen::Vector3d &M) {
-
     // compute vertices
     m_V.resize(8, 3);
     m_V <<
@@ -32,6 +31,10 @@ BoxScene::BoxScene(const Eigen::Vector3d &m, const Eigen::Vector3d &M) {
             7, 3;
 }
 
+void BoxScene::getMinMax(Eigen::Vector3d& minCoord, Eigen::Vector3d& maxCoord) {
+    minCoord = m_V.colwise().minCoeff();
+    maxCoord = m_V.colwise().maxCoeff();
+}
 
 void BoxScene::draw(igl::opengl::glfw::Viewer &viewer) {
     for (int i = 0; i < m_E.rows(); i++) {

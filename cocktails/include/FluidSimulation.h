@@ -6,8 +6,7 @@
 #include "Scene.h"
 #include "Fluid.h"
 #include "Source.h"
-
-class SurfaceExtractor; 
+#include "SurfaceExtractor.h"
 
 class FluidSimulation : public Simulation {
 public:
@@ -17,7 +16,6 @@ public:
     std::vector<Source*> m_sources;
 
 	bool m_use_particle_color;
-	Scene* m_scene;
 
     virtual void init() override;
 	virtual void resetMembers() override;
@@ -29,14 +27,20 @@ public:
 	void getMinMaxParticlePosition(Eigen::Vector3d& minPosition, Eigen::Vector3d& maxPosition);
 
 	void toggleRecording();
-	void exportParticles(std::string exportPath);
-	void exportMesh(std::string exportPath);
-	
-	double m_level;
+	void exportParticles();
+	void exportMesh();
+
+	void setScene(Scene* scene);
+
+	SurfaceExtractor* m_surface_extractor;
+
+	std::string m_mesh_path;
+	std::string m_particles_path;
 
 protected:
 
 	static void runParallel(int elementCount, const std::function<void(int, int)>& f);
+	Scene* m_scene;
 
 private:
 	Eigen::MatrixXd V;  // Vertex positions
@@ -44,7 +48,6 @@ private:
 	Eigen::MatrixXd C;  // Colors per face
 	bool m_save_simulation;
 	int m_save_freq;
-	SurfaceExtractor* m_surface_extractor;
 
 };
 

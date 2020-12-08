@@ -6,8 +6,8 @@ namespace fluids {
             "Boundary",
             1,
             1000,
-            1000,
-            1,
+            800,
+            10,
             Eigen::Vector3d(.1, .1, .1)
     );
 

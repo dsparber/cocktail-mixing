@@ -13,6 +13,8 @@ public:
 
 	bool outOfBoundary(const Eigen::Vector3d& pos);
 
+	void getMinMax(Eigen::Vector3d& minCoord, Eigen::Vector3d& maxCoord);
+
 	void getIntersectionPointAndSurfaceNormal(
 		const Eigen::Vector3d& pos,
 		const Eigen::Vector3d& dir,

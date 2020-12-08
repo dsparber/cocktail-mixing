@@ -15,6 +15,8 @@ public:
 
 	virtual bool outOfBoundary(const Eigen::Vector3d& pos) = 0;
 
+	virtual void getMinMax(Eigen::Vector3d& minCoordinate, Eigen::Vector3d& maxCoordinate) = 0;
+
 	void updateOnBoundaryCollision(Particle& particle, const double dt) {
 		Eigen::Vector3d intersection, normal;
 		getIntersectionPointAndSurfaceNormal(particle.m_pos, dt * particle.m_vel, intersection, normal);

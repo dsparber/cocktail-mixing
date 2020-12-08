@@ -1,4 +1,7 @@
-build/
+build*/
+
+particles/
+mesh/
 
 .idea/
 .vscode/

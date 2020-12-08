@@ -1,6 +1,6 @@
 #include "../include/FluidSimulation.h"
 #include "../include/FluidDefinitons.h"
-#include "../include/SurfaceExtractor.h"
+#include "../include/BoxScene.h"
 #include <thread>
 #include <fstream>
 
@@ -13,7 +13,9 @@ FluidSimulation::FluidSimulation() : Simulation() {
     m_save_simulation = false;
     m_save_freq = 100;
     m_surface_extractor = new SurfaceExtractor();
-    m_level = m_surface_extractor->m_info._isosurface;
+    m_mesh_path = '.';
+    m_particles_path = '.';
+    m_scene = new BoxScene(Eigen::Vector3d(0,0,0), Eigen::Vector3d(1,1,1));
 }
 
 void FluidSimulation::init() {
@@ -36,10 +38,10 @@ bool FluidSimulation::advance() {
     }
     m_step++;
 
+    // save mesh
     if(m_save_simulation && (m_step % m_save_freq == 0)) {
-        for(auto &fluid : m_fluids) {
-            m_surface_extractor->createMesh(fluid->m_particles, fluid->m_name +"_"+ std::to_string(m_step) + ".obj");
-        }
+        exportMesh();
+        exportParticles();
     }
 
     return false;
@@ -114,6 +116,13 @@ void FluidSimulation::getMinMaxParticlePosition(Eigen::Vector3d& minPosition, Ei
     }
 }
 
+void FluidSimulation::setScene(Scene* scene) {
+    if(m_scene) delete m_scene;
+    m_scene = scene;
+    // adjust bounding box for marching cubes
+    scene->getMinMax(m_surface_extractor->m_m, m_surface_extractor->m_M);
+}
+
 void FluidSimulation::toggleRecording() {
     m_save_simulation = !m_save_simulation;
     if(m_save_simulation) {
@@ -123,25 +132,26 @@ void FluidSimulation::toggleRecording() {
     }
 }
 
-void FluidSimulation::exportParticles(std::string exportPath) {
-    ofstream particleFile;
-    particleFile.open(exportPath);
+void FluidSimulation::exportParticles() {
     for(auto &fluid : m_fluids) {
-        if(fluid->m_particles.size() > 0) {
-            particleFile << fluid->m_name <<" "<< fluid->m_particles.size() << "\n";
+        // no need to save save non existant or fixed particles
+        if(fluid->m_particles.size() > 0 && fluid->m_name != "Boundary") {
+            ofstream particleFile;
+            string filepath = m_particles_path + "/" + fluid->m_name + "_" + std::to_string(m_step) + ".xyz";
+            particleFile.open(filepath);
             for(auto& particle : fluid->m_particles) {
                 particleFile << particle.m_pos.transpose() << "\n";
             }
+            particleFile.close();
+            std::cout<< "Written particles to " << filepath << "\n";
         }
     }
-    particleFile.close();
 }
 
-void FluidSimulation::exportMesh(std::string exportPath) {
-    m_surface_extractor->m_info._isosurface = m_level;
+void FluidSimulation::exportMesh() {
     for(auto &fluid : m_fluids) {
         if(fluid->m_name == "Boundary") continue;
-        std::string filePath = exportPath + "/" + fluid->m_name + "_" + std::to_string(m_step) + ".obj";
+        std::string filePath = m_mesh_path + "/" + fluid->m_name + "_" + std::to_string(m_step) + ".obj";
         m_surface_extractor->createMesh(fluid->m_particles, filePath);
     }
 }

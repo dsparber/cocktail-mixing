@@ -36,16 +36,19 @@ public:
         m_scene_max << 2., 4., 1.2;
         m_scene_min << 0., 0., 0.;
 
-        m_boundary_particles_path = "../../data/boundary.xyz";
+        m_boundary_particles_path = "../../data/glass.xyz";
 
-        simulation = new SphSimulation();
+        simulation = new DCSPHSimulation();
 
-		setSimulation(simulation);
         simulation->init();
 
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
-		start();
+        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(8, 8, 8), 0.11, Eigen::Vector3d(0.1, 3, 0.1)));
+        simulation->m_sources.back()->init();
+        simulation->setScene(new BoxScene(Eigen::Vector3d(-1,0,-1), Eigen::Vector3d(2,5,2)));
+        setSimulation(simulation);
+        start();
 	}
 
 	void drawSimulationParameterMenu() override {
@@ -72,9 +75,6 @@ public:
 
         }
 
-        // Recording
- 
-
 		// Simulation GUI
 		ImGui::InputDouble("Simulation dt", &simulation->m_dt);
 
@@ -85,7 +85,11 @@ public:
         // Coloring
         ImGui::Checkbox("Particle/Fluid coloring", &simulation->m_use_particle_color);
 
-       if(ImGui::CollapsingHeader("Recording")) {
+        // Recording
+        if(ImGui::CollapsingHeader("Custom Recording")) {
+
+            ImGui::InputText("Store Particles (.xyz) in", simulation->m_particles_path);
+            ImGui::InputText("Store Meshes (.obj) in", simulation->m_mesh_path);
 
             if(ImGui::Button("Record", ImVec2(-1, 0))) {
                 simulation->toggleRecording();
@@ -93,14 +97,15 @@ public:
             }
 
             if(ImGui::Button("Save Particles", ImVec2(-1, 0))) {
-                simulation->exportParticles("particles.txt");
+                simulation->exportParticles();
             }
 
             if(ImGui::Button("Save Mesh", ImVec2(-1, 0))) {
-                simulation->exportMesh(".");
+                simulation->exportMesh();
             }
-            ImGui::InputDouble("Isolevel", &simulation->m_level);
-
+            ImGui::InputDouble("Isolevel", &simulation->m_surface_extractor->m_isolevel);
+            ImGui::InputDouble("Resolution", &simulation->m_surface_extractor->m_res);
+            ImGui::InputDouble("Kernel Radius Rec", &simulation->m_surface_extractor->m_kernel_radius);
         }
 
         if(ImGui::CollapsingHeader("Boundary Box")) {
@@ -114,13 +119,11 @@ public:
             ImGui::InputDouble("Box max z", &(m_scene_max[2]));
 
             if(ImGui::Button("Reset boundary", ImVec2(-1, 0))) {
-                delete simulation->m_scene;
-                simulation->m_scene = new BoxScene(m_scene_min, m_scene_max);
+                simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
             }
 
             if(ImGui::Button("Fit Bounding Box", ImVec2(-1, 0))) {
                 simulation->getMinMaxParticlePosition(m_scene_min, m_scene_max);
-
 
                 for(auto& source : simulation->m_sources) {
                     auto generatingSource = dynamic_cast<GeneratingSource *>(source);
@@ -137,8 +140,7 @@ public:
 
                 m_scene_min.y() = std::min(0.0, m_scene_min.y());
 
-                delete simulation->m_scene;
-                simulation->m_scene = new BoxScene(m_scene_min, m_scene_max);
+                simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
             }
 
         }

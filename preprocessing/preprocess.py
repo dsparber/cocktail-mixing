@@ -19,7 +19,7 @@ def tf_translate(points, trans_dir):
     return points
 
 
-def preprocess(in_points, out_file, max_samples=100, normalize=False, scale=None, translate=None):
+def preprocess(in_points, out_file=None, max_samples=100, normalize=False, scale=None, translate=None):
     num_points = in_points.shape[0]
 
     if num_points > max_samples:
@@ -43,8 +43,10 @@ def preprocess(in_points, out_file, max_samples=100, normalize=False, scale=None
     if translate is not None:
         in_points = tf_translate(in_points, translate)
 
-    np.savetxt(out_file, in_points)
+    if out_file is not None:
+        np.savetxt(out_file, in_points)
 
+    return in_points
 
 def preprocess_mesh(mesh, out_file, max_samples=100, normalize=False, scale=None, translate=None):
     inside_points = trimesh.sample.volume_mesh(mesh, 10 * max_samples // 2)
@@ -84,5 +86,7 @@ if __name__ == "__main__":
         preprocess(in_points, OUT_FILE, max_samples=1000, normalize=True, scale=2, translate=np.array([0.0, -2.0, 0.0]))
 
     elif file_extension == 'obj':
-        mesh = trimesh.load(IN_FILE)
-        preprocess_mesh(mesh, OUT_FILE, max_samples=1000, normalize=True, scale=2, translate=np.array([0.0, -1.0, 0.0]))
+        mesh = trimesh.load(IN_FILE) # first transform mesh, then sample
+        mesh.vertices = preprocess(mesh.vertices, max_samples=mesh.vertices.shape[0], normalize=True, scale=2, translate=np.array([0.0, -1.0, 0.0]))
+        mesh.export(OUT_FILE + ".obj")
+        preprocess_mesh(mesh, OUT_FILE + ".xyz", max_samples=1000)

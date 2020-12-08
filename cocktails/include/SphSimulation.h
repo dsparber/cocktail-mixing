@@ -29,7 +29,6 @@ protected:
     NeighborSearch* m_neighborSearch;
 	void updateNeighbors();
 
-
 };
 
 #endif // PBS_SPH_SIMULATION_H
