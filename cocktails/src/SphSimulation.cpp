@@ -148,13 +148,3 @@ void SphSimulation::updateVelocityAndPosition() {
         runParallel(fluid->m_particles.size(), f);
     }
 }
-
-void SphSimulation::setKernelRadius(double kernelRadius) {
-    assert(kernelRadius >= 0);
-    m_kernelRadius = kernelRadius;
-}
-
-void SphSimulation::setGridWidth(double gridWidth) {
-    assert(gridWidth >= 0);
-    m_gridWidth = gridWidth;
-}

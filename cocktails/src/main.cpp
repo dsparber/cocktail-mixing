@@ -6,6 +6,8 @@
 #include "../include/CustomSource.h"
 #include "../include/FluidDefinitons.h"
 #include "../include/BoxScene.h"
+#include "../include/SimulationLoader.h"
+
 /*
  * This class is a GUI for our dummy simulation. It extends the basic GUI
  * defined in Gui.h. We could add more controls and visuals here, but we don't
@@ -56,20 +58,21 @@ public:
         ImGui::Combo("Choose Solver:", &m_solver_chooser, m_solver_names);
 
         if(ImGui::Button("Confirm", ImVec2(-1, 0))) {
-
+            SphSimulation* tmp = nullptr;
             switch(m_solver_chooser){
                 case 0:
-                    simulation = new SphSimulation();
+                    tmp = new SphSimulation();
                     cout << "Switched to SPH\n";
                     break;
                 case 1:
-                    simulation = new DCSPHSimulation();
+                    tmp = new DCSPHSimulation();
                     cout << "Switched to DCSPH\n";
                     break;
                 default:
-                    simulation = new SphSimulation();
+                    tmp = new SphSimulation();
             }
-
+            delete simulation;
+            simulation = tmp;
             setSimulation(simulation);
             simulation->init();
 
@@ -87,6 +90,31 @@ public:
 
         // Recording
         if(ImGui::CollapsingHeader("Custom Recording")) {
+
+
+            if(ImGui::Button("Save Sim", ImVec2(-1, 0))) {
+                SimulationLoader::saveSimulation("./test.sim", simulation);
+            }
+
+            if(ImGui::Button("Load Sim", ImVec2(-1, 0))) {
+                simulation = SimulationLoader::loadSimulation("./test.sim");
+
+                cout << "Simulation has " << simulation->m_sources.size() << "sources\n";
+
+                for(auto fluid : simulation->m_fluids) {
+                    cout << fluid->m_name << " " << fluid->m_particles.size() << endl;
+                }
+                setSimulation(simulation);
+
+            }
+
+            if(ImGui::Button("num Particles", ImVec2(-1, 0))) {
+                cout << "Simulation has " << simulation->m_sources.size() << "sources\n";
+                for(auto fluid : simulation->m_fluids) {
+                    cout << fluid->m_name << " " << fluid->m_particles.size() << endl;
+                }
+            }
+
 
             ImGui::InputText("Store Particles (.xyz) in", simulation->m_particles_path);
             ImGui::InputText("Store Meshes (.obj) in", simulation->m_mesh_path);

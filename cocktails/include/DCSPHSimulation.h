@@ -5,7 +5,7 @@
 #include "NeighborSearch.h"
 
 /*
- * Example simulation that changes the colors of a cube.
+ * Sol08 Density Contrast SPH
  */
 class DCSPHSimulation : public SphSimulation {
 public:

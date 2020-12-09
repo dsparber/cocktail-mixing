@@ -3,9 +3,12 @@
 
 #include "FluidSimulation.h"
 #include "NeighborSearch.h"
+#include "SimulationLoader.h"
+
+#include <string>
 
 /*
- * Example simulation that changes the colors of a cube.
+ * Mueller03 Basic SPH implementation with multi-threading
  */
 class SphSimulation : public FluidSimulation {
 public:
@@ -13,9 +16,6 @@ public:
 
 	virtual bool advance() override;
 	virtual void resetMembers() override;
-
-	void setKernelRadius(double kernelRadius);
-	void setGridWidth(double gridwidth);
 
 	double m_kernelRadius;
 	double m_gridWidth; // Width of a cell in the uniform grid, ideally equal to kernel Radius
@@ -29,6 +29,7 @@ protected:
     NeighborSearch* m_neighborSearch;
 	void updateNeighbors();
 
+	friend class SimulationLoader;
 };
 
 #endif // PBS_SPH_SIMULATION_H
