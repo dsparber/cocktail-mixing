@@ -58,7 +58,7 @@ public:
         ImGui::Combo("Choose Solver:", &m_solver_chooser, m_solver_names);
 
         if(ImGui::Button("Confirm", ImVec2(-1, 0))) {
-            SphSimulation* tmp = nullptr;
+            SphSimulation* tmp = NULL;
             switch(m_solver_chooser){
                 case 0:
                     tmp = new SphSimulation();
@@ -71,7 +71,9 @@ public:
                 default:
                     tmp = new SphSimulation();
             }
+
             delete simulation;
+            simulation = NULL;
             simulation = tmp;
             setSimulation(simulation);
             simulation->init();
@@ -114,7 +116,6 @@ public:
                     cout << fluid->m_name << " " << fluid->m_particles.size() << endl;
                 }
             }
-
 
             ImGui::InputText("Store Particles (.xyz) in", simulation->m_particles_path);
             ImGui::InputText("Store Meshes (.obj) in", simulation->m_mesh_path);
@@ -199,13 +200,11 @@ public:
                 simulation->m_sources.back()->init();
             }
 
-
             if (ImGui::Button("Add source from file", ImVec2(-1, 0))) {
                 m_particles_init_file = igl::file_dialog_open();
                 simulation->m_sources.push_back(new CustomSource(fluids::allFluids[m_fluid_chooser], m_particles_init_file));
                 simulation->m_sources.back()->init();
             }
-
 
             if (ImGui::Button("Remove all sources", ImVec2(-1, 0))) {
                 simulation->m_sources.clear();
@@ -253,8 +252,6 @@ public:
                 }
             }
         }
-
-
 
 	}
 

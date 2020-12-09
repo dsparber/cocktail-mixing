@@ -117,7 +117,8 @@ void FluidSimulation::getMinMaxParticlePosition(Eigen::Vector3d& minPosition, Ei
 }
 
 void FluidSimulation::setScene(Scene* scene) {
-    if(m_scene) delete m_scene;
+    if(m_scene != NULL) delete m_scene;
+    m_scene = NULL;
     m_scene = scene;
     // adjust bounding box for marching cubes
     scene->getMinMax(m_surface_extractor->m_m, m_surface_extractor->m_M);

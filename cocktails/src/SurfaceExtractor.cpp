@@ -7,9 +7,9 @@
 #include <igl/copyleft/marching_cubes.h>
 
 SurfaceExtractor::SurfaceExtractor() {
-    m_res = 0.05;
-    m_kernel_radius = 0.4;
-    m_isolevel = 1.0;
+    m_res = 0.01;
+    m_kernel_radius = 0.2;
+    m_isolevel = 0.7;
     m_m = Eigen::Vector3d(-1, 0, -1);
     m_M = Eigen::Vector3d(2, 4, 2);
 }
@@ -53,7 +53,7 @@ void SurfaceExtractor::createMesh(std::vector<Particle>& particles, std::string 
                 double density = 0.0;
                 for(Particle* neighbor : neighbors) {
                     double r2 = (pos - neighbor->m_pos).squaredNorm();
-                    density += neighbor->m_mass * kernels::wPoly6(r2, m_kernel_radius);
+                    density += neighbor->m_mass * kernels::wPoly6(r2, m_kernel_radius) / neighbor->m_density;
                 }
                 densities(c) = density;
                 c++;

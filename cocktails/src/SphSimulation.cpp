@@ -26,7 +26,8 @@ bool SphSimulation::advance() {
 
 void SphSimulation::resetMembers() {
     FluidSimulation::resetMembers();
-    delete m_neighborSearch;
+    if (m_neighborSearch != NULL) delete m_neighborSearch;
+    m_neighborSearch = NULL;
     m_neighborSearch = new UniformGridNeighborSearch(m_gridWidth);
     updateNeighbors();
 }
@@ -84,6 +85,7 @@ void SphSimulation::updateForce() {
                 Eigen::Vector3d f_pressure = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_viscosity = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_external = Eigen::Vector3d::Zero();
+                Eigen::Vector3d f_surface = Eigen::Vector3d::Zero();
 
                 // Gravity
                 f_external += constants::g * particle.m_mass;
@@ -109,6 +111,8 @@ void SphSimulation::updateForce() {
                     // Viscosity
                     f_viscosity += fluid->m_viscosity * m_j * (v_j - v_i) / rho_j
                                    * kernels::lapWViscosity((r_i - r_j).norm(), m_kernelRadius);
+
+                    // Surface tension
                 }
 
                 Eigen::Vector3d f =

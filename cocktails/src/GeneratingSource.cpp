@@ -1,12 +1,12 @@
 #include "../include/GeneratingSource.h"
 
 GeneratingSource::GeneratingSource(Fluid *fluid) : Source(fluid) {
-    m_particlesPerSecond = 5;
-    m_maxParticles = 500;
+    m_particlesPerSecond = 50;
+    m_maxParticles = 3000;
 
-    m_position << 2, 5, 2;
-    m_positionStdDeviation = 0.2;
-    m_particleVelocity << 0, -0.1, 0;
+    m_position << 0, 5, 0;
+    m_positionStdDeviation = 0.1;
+    m_particleVelocity << 0.1, -0.5, 0.1;
     m_particleVelocityStdDeviation = 0;
 
     m_particleCount = 0;
