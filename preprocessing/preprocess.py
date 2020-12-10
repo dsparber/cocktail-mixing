@@ -48,6 +48,7 @@ def preprocess(in_points, out_file=None, max_samples=100, normalize=False, scale
 
     return in_points
 
+
 def preprocess_mesh(mesh, out_file, max_samples=100, normalize=False, scale=None, translate=None):
     inside_points = trimesh.sample.volume_mesh(mesh, 10 * max_samples // 2)
     print(f"{inside_points.shape[0]} inside points")
@@ -66,7 +67,7 @@ if __name__ == "__main__":
 
     file_extension = IN_FILE.split('.')[-1]
 
-    if not os.path.isfile(IN_FILE) or file_extension not in ['xyz', 'obj']:
+    if not os.path.isfile(IN_FILE):
         print(f"File {IN_FILE} not found")
         print("Abort...")
         exit()

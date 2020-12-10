@@ -46,7 +46,7 @@ public:
 
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
-        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(8, 8, 8), 0.11, Eigen::Vector3d(0.1, 3, 0.1)));
+        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(40, 40, 40), 0.11, Eigen::Vector3d(-2, 8, -2)));
         simulation->m_sources.back()->init();
         simulation->setScene(new BoxScene(Eigen::Vector3d(-1,0,-1), Eigen::Vector3d(2,5,2)));
         setSimulation(simulation);
