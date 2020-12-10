@@ -45,10 +45,10 @@ void DCSPHSimulation::updateForce() {
             for (int i = start; i < end; ++i) {
                 auto &particle = fluid->m_particles.at(i);
 
-                // TODO: implement surface tension
                 Eigen::Vector3d f_pressure = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_viscosity = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_external = Eigen::Vector3d::Zero();
+                Eigen::Vector3d f_boundary = Eigen::Vector3d::Zero();
 
                 // Gravity
                 f_external += constants::g * particle.m_mass;
@@ -76,6 +76,15 @@ void DCSPHSimulation::updateForce() {
                     // Viscosity
                     f_viscosity += (mu_i + mu_j) * (v_j - v_i) / (2 * rho_j)
                                    * kernels::lapWViscosity((r_i - r_j).norm(), m_kernelRadius);
+
+                    // Boundary repulsion
+                    double K = .4;
+                    if (neighbor->m_fluid->m_isBoundary) {
+                        f_boundary +=
+                                K *
+                                (r_j - r_i).normalized() *
+                                kernels::wPoly6((r_i - r_j).norm(), m_kernelRadius);
+                    }
                 }
 
                 f_pressure /= rho_i;
@@ -83,7 +92,8 @@ void DCSPHSimulation::updateForce() {
                 Eigen::Vector3d f =
                         f_external +
                         f_pressure +
-                        f_viscosity;
+                        f_viscosity +
+                        f_boundary;
 
                 particle.m_acc = f / (particle.m_mass * particle.m_density);
             }

@@ -28,15 +28,15 @@ public:
 
 	MainGui() {
         m_fluid_chooser = 0;
-        for(auto& fluid : fluids::allFluids) {
+        for(auto& fluid : fluids::regularFluids) {
             m_fluid_names.push_back(fluid->m_name);
         }
 
         m_solver_chooser = 0;
         m_solver_names = {"SPH", "DCSPH"};
 
-        m_scene_max << 2., 4., 1.2;
-        m_scene_min << 0., 0., 0.;
+        m_scene_max << 100, 100, 100;
+        m_scene_min << -100, 0., -100;
 
         m_boundary_particles_path = "../../data/glass.xyz";
 
@@ -48,7 +48,7 @@ public:
         simulation->m_sources.back()->init();
         simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(40, 40, 40), 0.11, Eigen::Vector3d(-2, 8, -2)));
         simulation->m_sources.back()->init();
-        simulation->setScene(new BoxScene(Eigen::Vector3d(-1,0,-1), Eigen::Vector3d(2,5,2)));
+        simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
         setSimulation(simulation);
         start();
 	}
@@ -191,18 +191,18 @@ public:
             ImGui::Combo("Fluid Type Chooser:", &m_fluid_chooser, m_fluid_names);
 
             if (ImGui::Button("Add block source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new BlockSource(fluids::allFluids[m_fluid_chooser]));
+                simulation->m_sources.push_back(new BlockSource(fluids::regularFluids[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
             if (ImGui::Button("Add generating source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new GeneratingSource(fluids::allFluids[m_fluid_chooser]));
+                simulation->m_sources.push_back(new GeneratingSource(fluids::regularFluids[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
             if (ImGui::Button("Add source from file", ImVec2(-1, 0))) {
                 m_particles_init_file = igl::file_dialog_open();
-                simulation->m_sources.push_back(new CustomSource(fluids::allFluids[m_fluid_chooser], m_particles_init_file));
+                simulation->m_sources.push_back(new CustomSource(fluids::regularFluids[m_fluid_chooser], m_particles_init_file));
                 simulation->m_sources.back()->init();
             }
 

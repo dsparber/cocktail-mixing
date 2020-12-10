@@ -14,7 +14,7 @@ namespace fluids {
 
     extern std::vector<Fluid*> all;
 
-    extern std::vector<Fluid*> allFluids;
+    extern std::vector<Fluid*> regularFluids;
 
 }
 

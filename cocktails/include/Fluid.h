@@ -15,9 +15,10 @@ public:
     double m_stiffness;
     double m_restDensity;
     double m_particleMass;
+    bool m_isBoundary;
     Eigen::Vector3d m_color;
 
-    Fluid(std::string name, double viscosity, double stiffness, double restDensity, double particleMass, Eigen::Vector3d color);
+    Fluid(std::string name, double viscosity, double stiffness, double restDensity, double particleMass, Eigen::Vector3d color, bool isBoundary);
 
     void reset();
 };

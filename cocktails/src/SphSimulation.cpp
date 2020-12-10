@@ -5,7 +5,7 @@
 #include "../include/FluidDefinitons.h"
 
 SphSimulation::SphSimulation() : FluidSimulation() {
-    m_dt = 0.008;
+    m_dt = 0.01;
     m_gridWidth = 0.2;
     m_kernelRadius = 0.2;
     m_neighborSearch = new UniformGridNeighborSearch(m_gridWidth);
@@ -132,7 +132,7 @@ void SphSimulation::updateForce() {
 void SphSimulation::updateVelocityAndPosition() {
     for (auto& fluid : m_fluids) {
 
-        if (fluid == fluids::boundary) {
+        if (fluid->m_isBoundary) {
             continue;
         }
 
