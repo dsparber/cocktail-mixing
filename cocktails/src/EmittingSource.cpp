@@ -1,7 +1,8 @@
 #include "../include/EmittingSource.h"
 #include <iostream>
 
-EmittingSource::EmittingSource(Fluid *fluid) : Source(fluid) {
+EmittingSource::EmittingSource(Fluid *fluid, const Eigen::Vector3d& position, const Eigen::Vector3d& velocity)
+     : Source(fluid), m_position(position), m_particleVelocity(velocity) {
     std::cout << "Emitting source init\n";
 
     m_particlesPerSecond = 20;
@@ -12,11 +13,7 @@ EmittingSource::EmittingSource(Fluid *fluid) : Source(fluid) {
     m_z = 1;
     m_spacing = 1.1 * std::cbrt(fluid->m_particleMass / fluid->m_restDensity);
 
-    m_position << 0, 5, 0;
-    m_particleVelocity << 0.1, -0.5, 0.1;
-
     m_particleCount = 0;
-
 }
 
 void EmittingSource::init() {

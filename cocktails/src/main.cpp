@@ -38,6 +38,7 @@ public:
 
         // m_scene_max << 100, 100, 100;
         // m_scene_min << -100, 0., -100;
+
         m_scene_max << 2., 10., 2.;
         m_scene_min << -2., 0., -2.;
 
@@ -53,6 +54,10 @@ public:
         simulation->m_sources.back()->init();
 
         simulation->m_sources.push_back(new EmittingSource(fluids::water));
+        simulation->m_sources.back()->init();
+
+
+        simulation->m_sources.push_back(new EmittingSource(fluids::honey, Eigen::Vector3d(1., 5.,1.), Eigen::Vector3d(-0.1, -0.5, -0.1)));
         simulation->m_sources.back()->init();
 
         // simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(40, 40, 40), 0.11, Eigen::Vector3d(-2, 8, -2)));

@@ -8,14 +8,17 @@
 class EmittingSource : public Source {
 
 public:
+    Eigen::Vector3d m_position;
+    Eigen::Vector3d m_particleVelocity;
+
     int m_maxParticles;
     double m_particlesPerSecond;
     int m_x, m_y, m_z;
     double m_spacing;
-    Eigen::Vector3d m_position;
-    Eigen::Vector3d m_particleVelocity;
 
-    explicit EmittingSource(Fluid *fluid);
+
+    explicit EmittingSource(Fluid *fluid, const Eigen::Vector3d& position=Eigen::Vector3d(0.,5.,0.),
+        const Eigen::Vector3d& velocity = Eigen::Vector3d(0.1, -0.5, 0.1));
 
     void init() override;
 
