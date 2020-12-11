@@ -80,6 +80,7 @@ void SphSimulation::updateForce() {
         // Define function for parallelism
         auto f = [fluid, this](int start, int end) {
 
+
             // Actual computation
             for (int i = start; i < end; ++i) {
                 auto &particle = fluid->m_particles.at(i);
@@ -89,6 +90,10 @@ void SphSimulation::updateForce() {
                 Eigen::Vector3d f_viscosity = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_external = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_surface = Eigen::Vector3d::Zero();
+                Eigen::Vector3d f_interface = Eigen::Vector3d::Zero();
+
+                double lapColor = 0.0;
+                Eigen::Vector3d normalColor = Eigen::Vector3d::Zero();
 
                 // Gravity
                 f_external += constants::g * particle.m_mass;
@@ -106,22 +111,30 @@ void SphSimulation::updateForce() {
                     auto &r_j = neighbor->m_pos;
                     auto &v_j = neighbor->m_vel;
                     auto &rho_j = neighbor->m_density;
-
+                    Eigen::Vector3d r = r_i - r_j;
                     // Pressure
                     f_pressure -= m_j * (p_i + p_j) / (2 * rho_j)
-                                  * kernels::gradWSpiky(r_i - r_j, m_kernelRadius);
+                                  * kernels::gradWSpiky(r, m_kernelRadius);
 
                     // Viscosity
                     f_viscosity += fluid->m_viscosity * m_j * (v_j - v_i) / rho_j
-                                   * kernels::lapWViscosity((r_i - r_j).norm(), m_kernelRadius);
+                                   * kernels::lapWViscosity(r.norm(), m_kernelRadius);
 
                     // Surface tension
+                    lapColor += m_j * kernels::lwPoly6(r.squaredNorm(), m_kernelRadius) / rho_j;
+                    normalColor += m_j * kernels::gwPoly6(r, m_kernelRadius) / rho_j;
                 }
+
+                if(normalColor.norm() >= fluid->m_tension_thres)
+                    f_interface = - fluid->m_tension * lapColor * normalColor.normalized();
+
+                std::cout << f_interface.norm() << std::endl;
 
                 Eigen::Vector3d f =
                         f_external +
                         f_pressure +
-                        f_viscosity;
+                        f_viscosity +
+                        f_interface;
 
                 particle.m_acc = f / particle.m_density;
             }

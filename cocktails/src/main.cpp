@@ -38,13 +38,16 @@ public:
 
         // m_scene_max << 100, 100, 100;
         // m_scene_min << -100, 0., -100;
-        m_scene_max << 1, 10, 1;
-        m_scene_min << -1, 0., -1;
+        m_scene_max << 2., 10., 2.;
+        m_scene_min << -2., 0., -2.;
 
         m_boundary_particles_path = "../../data/boundary.xyz";
 
         simulation = new DCSPHSimulation();
         simulation->init();
+
+        // simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 10), 0.11, Eigen::Vector3d(0.1, 1, 0.4)));
+        // simulation->m_sources.back()->init();
 
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
@@ -189,6 +192,9 @@ public:
                     ImGui::InputDouble("Viscosity", &fluid->m_viscosity);
                     ImGui::InputDouble("Particle Mass", &fluid->m_particleMass);
                     ImGui::InputDouble("Rest Density", &fluid->m_restDensity);
+                    ImGui::InputDouble("Surface Tension", &fluid->m_tension);
+                    ImGui::InputDouble("Surface Tension Thres", &fluid->m_tension_thres);
+
                 }
             }
         }
