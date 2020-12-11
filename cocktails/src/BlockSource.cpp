@@ -4,10 +4,12 @@ BlockSource::BlockSource(Fluid *fluid) : Source(fluid) {
     m_initialDimension << 10, 10, 10;
     m_initialSpacing = .1;
     m_initialOffset << 1.5, 2.5, 1.5;
+    m_initialVelocity << 0.0, 0.0, 0.0;
 }
 
 BlockSource::BlockSource(Fluid *fluid, Eigen::Vector3i initialDimension, double initialSpacing, Eigen::Vector3d initialOffset)
-    : Source(fluid), m_initialDimension(initialDimension), m_initialSpacing(initialSpacing), m_initialOffset(initialOffset) {}
+    : Source(fluid), m_initialDimension(initialDimension), m_initialSpacing(initialSpacing), m_initialOffset(initialOffset),
+      m_initialVelocity(Eigen::Vector3d(0.0,0.0,0.0)) {}
 
 
 void BlockSource::init() {
@@ -21,6 +23,7 @@ void BlockSource::init() {
                 particle.m_pos << x, y, z;
                 particle.m_pos *= m_initialSpacing;
                 particle.m_pos += m_initialOffset;
+                particle.m_vel = m_initialVelocity;
                 particle.m_color << 1. * x / d.x(), 1. * y / d.y(), 1. * z / d.z();
                 particle.m_fluid = m_fluid;
                 m_fluid->m_particles.push_back(particle);

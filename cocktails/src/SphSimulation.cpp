@@ -64,6 +64,9 @@ void SphSimulation::updateDensityAndPressure() {
 
                 // pressure
                 particle.m_pressure = std::max(0., fluid->m_stiffness * (particle.m_density - fluid->m_restDensity));
+
+                // try tait equation
+                // particle.m_pressure = std::max(0.0, kernels::taitEq(fluid->m_stiffness, fluid->m_restDensity, particle.m_density));
             }
         };
 

@@ -2,6 +2,7 @@
 #include "Gui.h"
 #include "../include/DCSPHSimulation.h"
 #include "../include/BlockSource.h"
+#include "../include/EmittingSource.h"
 #include "../include/GeneratingSource.h"
 #include "../include/CustomSource.h"
 #include "../include/FluidDefinitons.h"
@@ -28,27 +29,33 @@ public:
 
 	MainGui() {
         m_fluid_chooser = 0;
-        for(auto& fluid : fluids::regularFluids) {
+        for(auto& fluid : fluids::all) {
             m_fluid_names.push_back(fluid->m_name);
         }
 
         m_solver_chooser = 0;
         m_solver_names = {"SPH", "DCSPH"};
 
-        m_scene_max << 100, 100, 100;
-        m_scene_min << -100, 0., -100;
+        // m_scene_max << 100, 100, 100;
+        // m_scene_min << -100, 0., -100;
+        m_scene_max << 1, 10, 1;
+        m_scene_min << -1, 0., -1;
 
-        m_boundary_particles_path = "../../data/glass.xyz";
+        m_boundary_particles_path = "../../data/boundary.xyz";
 
         simulation = new DCSPHSimulation();
-
         simulation->init();
 
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
-        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(40, 40, 40), 0.11, Eigen::Vector3d(-2, 8, -2)));
+
+        simulation->m_sources.push_back(new EmittingSource(fluids::water));
         simulation->m_sources.back()->init();
+
+        // simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(40, 40, 40), 0.11, Eigen::Vector3d(-2, 8, -2)));
+        // simulation->m_sources.back()->init();
         simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
+
         setSimulation(simulation);
         start();
 	}
@@ -191,18 +198,24 @@ public:
             ImGui::Combo("Fluid Type Chooser:", &m_fluid_chooser, m_fluid_names);
 
             if (ImGui::Button("Add block source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new BlockSource(fluids::regularFluids[m_fluid_chooser]));
+                simulation->m_sources.push_back(new BlockSource(fluids::all[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
+            if (ImGui::Button("Add emitting source", ImVec2(-1, 0))) {
+                simulation->m_sources.push_back(new EmittingSource(fluids::all[m_fluid_chooser]));
+                simulation->m_sources.back()->init();
+            }
+
+
             if (ImGui::Button("Add generating source", ImVec2(-1, 0))) {
-                simulation->m_sources.push_back(new GeneratingSource(fluids::regularFluids[m_fluid_chooser]));
+                simulation->m_sources.push_back(new GeneratingSource(fluids::all[m_fluid_chooser]));
                 simulation->m_sources.back()->init();
             }
 
             if (ImGui::Button("Add source from file", ImVec2(-1, 0))) {
                 m_particles_init_file = igl::file_dialog_open();
-                simulation->m_sources.push_back(new CustomSource(fluids::regularFluids[m_fluid_chooser], m_particles_init_file));
+                simulation->m_sources.push_back(new CustomSource(fluids::all[m_fluid_chooser], m_particles_init_file));
                 simulation->m_sources.back()->init();
             }
 
@@ -231,6 +244,26 @@ public:
                         ImGui::InputDouble("Offset: x", &blockSource->m_initialOffset[0]);
                         ImGui::InputDouble("Offset: y", &blockSource->m_initialOffset[1]);
                         ImGui::InputDouble("Offset: z", &blockSource->m_initialOffset[2]);
+                    }
+
+                    auto emittingSource = dynamic_cast<EmittingSource *>(source);
+                    if (emittingSource != nullptr) {
+                        ImGui::InputInt("Max. particles", &emittingSource->m_maxParticles);
+                        ImGui::InputDouble("Particles per second", &emittingSource->m_particlesPerSecond);
+
+                        ImGui::InputDouble("Particle distance", &emittingSource->m_spacing);
+
+                        ImGui::InputInt("Particels: x", &emittingSource->m_x);
+                        ImGui::InputInt("Particles: y", &emittingSource->m_y);
+                        ImGui::InputInt("Particles: z", &emittingSource->m_z);
+
+                        ImGui::InputDouble("Offset: x", &emittingSource->m_position[0]);
+                        ImGui::InputDouble("Offset: y", &emittingSource->m_position[1]);
+                        ImGui::InputDouble("Offset: z", &emittingSource->m_position[2]);
+
+                        ImGui::InputDouble("Particle Velocity: x", &emittingSource->m_particleVelocity[0]);
+                        ImGui::InputDouble("Particle Velocity: y", &emittingSource->m_particleVelocity[1]);
+                        ImGui::InputDouble("Particle Velocity: z", &emittingSource->m_particleVelocity[2]);
                     }
 
                     auto generatingSource = dynamic_cast<GeneratingSource *>(source);

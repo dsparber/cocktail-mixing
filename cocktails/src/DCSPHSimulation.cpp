@@ -23,7 +23,7 @@ void DCSPHSimulation::updateDensityAndPressure() {
                 // density
                 for(Particle* neighbor : particle.m_neighbors) {
                     double r2 = (particle.m_pos - neighbor->m_pos).squaredNorm();
-                    particle.m_density += kernels::wPoly6(r2, m_kernelRadius);
+                    particle.m_density += kernels::wPoly6(r2, m_kernelRadius); // particle density
                 }
 
                 // pressure
@@ -49,6 +49,7 @@ void DCSPHSimulation::updateForce() {
                 Eigen::Vector3d f_viscosity = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_external = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_boundary = Eigen::Vector3d::Zero();
+                Eigen::Vector3d f_interface = Eigen::Vector3d::Zero();
 
                 // Gravity
                 f_external += constants::g * particle.m_mass;
