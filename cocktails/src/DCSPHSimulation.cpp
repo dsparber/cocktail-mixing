@@ -1,4 +1,3 @@
-#include "../include/Kernels.h"
 #include "../include/DCSPHSimulation.h"
 #include "../include/Constants.h"
 #include "../include/UniformGridNeighborSearch.h"
@@ -24,14 +23,14 @@ void DCSPHSimulation::updateDensityAndPressure() {
                 for(Particle* neighbor : particle.m_neighbors) {
                     if(neighbor->m_fluid->m_isBoundary) continue;
                     double r2 = (particle.m_pos - neighbor->m_pos).squaredNorm();
-                    particle.m_density += kernels::wPoly6(r2, m_kernelRadius); // particle density
+                    particle.m_density += m_kernels->wPoly6(r2); // particle density
                 }
 
                 // pressure
                 // particle.m_pressure = std::max(0., fluid->m_stiffness * (particle.m_mass * particle.m_density - fluid->m_restDensity));
 
                 // Pressure using Tait equation (11)
-                particle.m_pressure = std::max(0., kernels::taitEq(fluid->m_stiffness, fluid->m_restDensity, particle.m_mass * particle.m_density));
+                particle.m_pressure = std::max(0., constants::taitEq(fluid->m_stiffness, fluid->m_restDensity, particle.m_mass * particle.m_density));
 
             }
         };
@@ -94,24 +93,24 @@ void DCSPHSimulation::updateForce() {
                         f_boundary +=
                                 m_boundary_repulsion *
                                 r_ij.normalized() *
-                                kernels::wPoly6(r*r, m_kernelRadius);
+                                m_kernels->wPoly6(r*r);
                         // TODO(Daniel): continue? 
                         continue;
                     }
 
                     // Pressure
                     //f_pressure -= (p_i + p_j) / (2 * d_j)
-                    //                * kernels::gradWSpiky(r_ij, m_kernelRadius);
+                    //                * m_kernels->gwSpiky(r_ij);
 
-                    f_pressure -= ((p_i/(d_i*d_i)) + (p_j/(d_j * d_j))) * kernels::gradWSpiky(r_ij, m_kernelRadius);
+                    f_pressure -= ((p_i/(d_i*d_i)) + (p_j/(d_j * d_j))) * m_kernels->gwSpiky(r_ij);
                  
                     // Viscosity
                     f_viscosity += (mu_i + mu_j) * (v_j - v_i) / (2 * d_j)
-                                   * kernels::lapWViscosity(r, m_kernelRadius);
+                                   * m_kernels->lwVisc(r);
 
                     // Interface Tension Forces as in Mueller 03
-                    lapColor += m_j * kernels::lwPoly6(r*r, m_kernelRadius) / d_j;
-                    normalColor += m_j * kernels::gwPoly6(r_ij, m_kernelRadius) / d_j;
+                    lapColor += m_j * m_kernels->lwPoly6(r*r) / d_j;
+                    normalColor += m_j * m_kernels->gwPoly6(r_ij) / d_j;
                 }
 
                 f_viscosity /= d_i;

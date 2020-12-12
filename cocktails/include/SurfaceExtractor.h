@@ -5,6 +5,8 @@
 #include <string>
 #include <Eigen/Dense>
 
+#include "SPHKernels.h"
+
 class NeighborSearch;
 class Particle;
 
@@ -25,6 +27,8 @@ public:
 
 	Eigen::Vector3d m_m; // min coordinate of the bounding box
 	Eigen::Vector3d m_M; // max coordinate of the bounding box
+
+	SPHKernels* m_kernels;
 };
 
 

@@ -4,8 +4,10 @@
 #include "FluidSimulation.h"
 #include "NeighborSearch.h"
 #include "SimulationLoader.h"
+#include "SPHKernels.h"
 
 #include <string>
+
 
 /*
  * Mueller03 Basic SPH implementation with multi-threading
@@ -29,6 +31,8 @@ protected:
 
     NeighborSearch* m_neighborSearch;
 	void updateNeighbors();
+
+	SPHKernels* m_kernels;
 
 	friend class SimulationLoader;
 };

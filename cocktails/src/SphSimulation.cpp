@@ -1,4 +1,3 @@
-#include "../include/Kernels.h"
 #include "../include/SphSimulation.h"
 #include "../include/Constants.h"
 #include "../include/UniformGridNeighborSearch.h"
@@ -10,6 +9,7 @@ SphSimulation::SphSimulation() : FluidSimulation() {
     m_kernelRadius = 0.2;
     m_neighborSearch = new UniformGridNeighborSearch(m_gridWidth);
     m_boundary_repulsion = 2000.;
+    m_kernels = new SPHKernels(m_kernelRadius);
 }
 
 
@@ -60,7 +60,7 @@ void SphSimulation::updateDensityAndPressure() {
                 // density
                 for(Particle* neighbor : particle.m_neighbors) {
                     double r2 = (particle.m_pos - neighbor->m_pos).squaredNorm();
-                    particle.m_density += neighbor->m_mass * kernels::wPoly6(r2, m_kernelRadius);
+                    particle.m_density += neighbor->m_mass * m_kernels->wPoly6(r2);
                 }
 
                 // pressure
@@ -118,21 +118,21 @@ void SphSimulation::updateForce() {
                         f_boundary +=
                                 m_boundary_repulsion *
                                 r.normalized() *
-                                kernels::wPoly6(r.squaredNorm(), m_kernelRadius);
+                                m_kernels->wPoly6(r.squaredNorm());
                         continue;
                     }
 
                     // Pressure
                     f_pressure -= m_j * (p_i + p_j) / (2 * rho_j)
-                                  * kernels::gradWSpiky(r, m_kernelRadius);
+                                  * m_kernels->gwSpiky(r);
 
                     // Viscosity
                     f_viscosity += m_j * (v_j - v_i) / rho_j
-                                   * kernels::lapWViscosity(r.norm(), m_kernelRadius);
+                                   * m_kernels->lwVisc(r.norm());
                     
                     // Surface tension
-                    lapColor += m_j * kernels::lwPoly6(r.squaredNorm(), m_kernelRadius) / rho_j;
-                    normalColor += m_j * kernels::gwPoly6(r, m_kernelRadius) / rho_j;
+                    lapColor += m_j * m_kernels->lwPoly6(r.squaredNorm()) / rho_j;
+                    normalColor += m_j * m_kernels->gwPoly6(r) / rho_j;
                 }
 
                 f_viscosity *= fluid->m_viscosity;
