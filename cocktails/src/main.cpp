@@ -42,23 +42,27 @@ public:
         m_scene_max << 2., 10., 2.;
         m_scene_min << -2., 0., -2.;
 
-        m_boundary_particles_path = "../../data/boundary.xyz";
+        // m_scene_min << -0.6, 0., -1.;
+        // m_scene_max << 0.1, 10., 1;
+
+        m_boundary_particles_path = "../../data/water_glass.xyz";
 
         simulation = new DCSPHSimulation();
+        // simulation = new SphSimulation();
+        
         simulation->init();
 
-        // simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 20, 10), 0.11, Eigen::Vector3d(0.1, 1, 0.4)));
-        // simulation->m_sources.back()->init();
+        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(7, 7, 7), Eigen::Vector3d(-0.3, 3, -0.1)));
+        simulation->m_sources.back()->init();
 
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
 
-        simulation->m_sources.push_back(new EmittingSource(fluids::water));
-        simulation->m_sources.back()->init();
+        // simulation->m_sources.push_back(new EmittingSource(fluids::water, Eigen::Vector3d(-0.5, 3, -0.5), Eigen::Vector3d(0.1, -0.5, 0.1)));
+        // simulation->m_sources.back()->init();
 
-
-        simulation->m_sources.push_back(new EmittingSource(fluids::honey, Eigen::Vector3d(1., 5.,1.), Eigen::Vector3d(-0.1, -0.5, -0.1)));
-        simulation->m_sources.back()->init();
+        // simulation->m_sources.push_back(new EmittingSource(fluids::honey, Eigen::Vector3d(0.5, 5., 0.5), Eigen::Vector3d(-0.1, -0.5, -0.1)));
+        // simulation->m_sources.back()->init();
 
         // simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(40, 40, 40), 0.11, Eigen::Vector3d(-2, 8, -2)));
         // simulation->m_sources.back()->init();
@@ -101,6 +105,7 @@ public:
         // SPH GUI
         ImGui::InputDouble("Kernel Radius", &simulation->m_kernelRadius);
         ImGui::InputDouble("Grid Width", &simulation->m_gridWidth);
+        ImGui::InputDouble("Boundary Repulsion", &simulation->m_boundary_repulsion);
 
         // Coloring
         ImGui::Checkbox("Particle/Fluid coloring", &simulation->m_use_particle_color);
@@ -117,10 +122,6 @@ public:
                 simulation = SimulationLoader::loadSimulation("./test.sim");
 
                 cout << "Simulation has " << simulation->m_sources.size() << "sources\n";
-
-                for(auto fluid : simulation->m_fluids) {
-                    cout << fluid->m_name << " " << fluid->m_particles.size() << endl;
-                }
                 setSimulation(simulation);
 
             }

@@ -28,3 +28,7 @@ Simulation of mixing fluids for Physically-based Simulation at ETH Zurich
 - [Multiple-Fluid SPH Simulation Using a Mixture Model](https://dl.acm.org/doi/pdf/10.1145/2645703)
   
 - [SPH treatment of boundaries and application to moving objects](http://www.unige.ch/math/folks/sutti/SPH_2019.pdf)
+
+- [Smoothed Particle Hydrodynamics rTechniques for the Physics Based Simulation of Fluids and Solids](https://interactivecomputergraphics.github.io/SPH-Tutorial/pdf/SPH_Tutorial.pdf)
+
+

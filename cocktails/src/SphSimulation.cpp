@@ -9,6 +9,7 @@ SphSimulation::SphSimulation() : FluidSimulation() {
     m_gridWidth = 0.2;
     m_kernelRadius = 0.2;
     m_neighborSearch = new UniformGridNeighborSearch(m_gridWidth);
+    m_boundary_repulsion = 2000.;
 }
 
 
@@ -65,8 +66,6 @@ void SphSimulation::updateDensityAndPressure() {
                 // pressure
                 particle.m_pressure = std::max(0., fluid->m_stiffness * (particle.m_density - fluid->m_restDensity));
 
-                // try tait equation
-                // particle.m_pressure = std::max(0.0, kernels::taitEq(fluid->m_stiffness, fluid->m_restDensity, particle.m_density));
             }
         };
 
@@ -80,28 +79,29 @@ void SphSimulation::updateForce() {
         // Define function for parallelism
         auto f = [fluid, this](int start, int end) {
 
-
             // Actual computation
             for (int i = start; i < end; ++i) {
                 auto &particle = fluid->m_particles.at(i);
 
-                // TODO: implement surface tension
                 Eigen::Vector3d f_pressure = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_viscosity = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_external = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_surface = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_interface = Eigen::Vector3d::Zero();
+                Eigen::Vector3d f_boundary = Eigen::Vector3d::Zero();
 
                 double lapColor = 0.0;
                 Eigen::Vector3d normalColor = Eigen::Vector3d::Zero();
 
                 // Gravity
-                f_external += constants::g * particle.m_mass;
+                f_external += constants::g * particle.m_density;
 
                 // Helper variables
+                auto &m_i = particle.m_mass;
                 auto &p_i = particle.m_pressure;
                 auto &r_i = particle.m_pos;
                 auto &v_i = particle.m_vel;
+                auto &rho_i = particle.m_density;
 
                 for (Particle *neighbor : particle.m_neighbors) {
 
@@ -112,23 +112,35 @@ void SphSimulation::updateForce() {
                     auto &v_j = neighbor->m_vel;
                     auto &rho_j = neighbor->m_density;
                     Eigen::Vector3d r = r_i - r_j;
+
+                    // Boundary repulsion
+                    if (neighbor->m_fluid->m_isBoundary) {
+                        f_boundary +=
+                                m_boundary_repulsion *
+                                r.normalized() *
+                                kernels::wPoly6(r.squaredNorm(), m_kernelRadius);
+                        continue;
+                    }
+
                     // Pressure
                     f_pressure -= m_j * (p_i + p_j) / (2 * rho_j)
                                   * kernels::gradWSpiky(r, m_kernelRadius);
 
                     // Viscosity
-                    f_viscosity += fluid->m_viscosity * m_j * (v_j - v_i) / rho_j
+                    f_viscosity += m_j * (v_j - v_i) / rho_j
                                    * kernels::lapWViscosity(r.norm(), m_kernelRadius);
-
+                    
                     // Surface tension
                     lapColor += m_j * kernels::lwPoly6(r.squaredNorm(), m_kernelRadius) / rho_j;
                     normalColor += m_j * kernels::gwPoly6(r, m_kernelRadius) / rho_j;
                 }
 
+                f_viscosity *= fluid->m_viscosity;
+
                 if(normalColor.norm() >= fluid->m_tension_thres)
                     f_interface = - fluid->m_tension * lapColor * normalColor.normalized();
 
-                std::cout << f_interface.norm() << std::endl;
+                // std::cout << f_external.norm() << " " << f_pressure.norm() << " " << f_viscosity.norm() << " " << f_interface.norm() << std::endl;
 
                 Eigen::Vector3d f =
                         f_external +
@@ -157,6 +169,11 @@ void SphSimulation::updateVelocityAndPosition() {
             for (int i = start; i < end; ++i) {
                 auto &particle = fluid->m_particles.at(i);
                 particle.m_vel += m_dt * particle.m_acc;
+
+                // enforce CFL condition
+                double v_max = 0.4*m_kernelRadius/m_dt;
+                particle.m_vel = (particle.m_vel.norm() > v_max) ? particle.m_vel.normalized() * v_max : particle.m_vel;
+
                 Eigen::Vector3d nextPosition = particle.m_pos + m_dt * particle.m_vel;
                 if (m_scene != nullptr && m_scene->outOfBoundary(nextPosition)) {
                     m_scene->updateOnBoundaryCollision(particle, m_dt);

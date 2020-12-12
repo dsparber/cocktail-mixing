@@ -13,8 +13,8 @@ FluidSimulation::FluidSimulation() : Simulation() {
     m_save_simulation = false;
     m_save_freq = 100;
     m_surface_extractor = new SurfaceExtractor();
-    m_mesh_path = '.';
-    m_particles_path = '.';
+    m_mesh_path = "../../mesh";
+    m_particles_path = "../../particles";
     m_scene = new BoxScene(Eigen::Vector3d(0,0,0), Eigen::Vector3d(1,1,1));
 }
 
@@ -78,7 +78,7 @@ void FluidSimulation::updateRenderGeometry() {
 }
 
 void FluidSimulation::renderRenderGeometry(igl::opengl::glfw::Viewer &viewer) {
-    viewer.data().point_size = 2;
+    viewer.data().point_size = 4;
     viewer.data().set_points(V, C);
 }
 

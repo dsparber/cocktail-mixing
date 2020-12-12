@@ -11,9 +11,11 @@ public:
 
     explicit BlockSource(Fluid *fluid);
 
-    BlockSource(Fluid *fluid, Eigen::Vector3i initialDimension, double initialSpacing, Eigen::Vector3d initialOffset);
+    BlockSource(Fluid *fluid, const Eigen::Vector3i& initialDimension, double initialSpacing, const Eigen::Vector3d& initialOffset,
+                const Eigen::Vector3d& initialVelocity = Eigen::Vector3d::Zero());
 
-    BlockSource(Fluid *fluid, Eigen::Vector3i initialDimension, double initialSpacing, Eigen::Vector3d initialOffset, Eigen::Vector3d initialVelocity);
+    BlockSource(Fluid *fluid, const Eigen::Vector3i& initialDimension, const Eigen::Vector3d& initialOffset,
+                const Eigen::Vector3d& intialVelocity = Eigen::Vector3d::Zero());
 
     void init() override;
 

@@ -7,10 +7,17 @@ BlockSource::BlockSource(Fluid *fluid) : Source(fluid) {
     m_initialVelocity << 0.0, 0.0, 0.0;
 }
 
-BlockSource::BlockSource(Fluid *fluid, Eigen::Vector3i initialDimension, double initialSpacing, Eigen::Vector3d initialOffset)
-    : Source(fluid), m_initialDimension(initialDimension), m_initialSpacing(initialSpacing), m_initialOffset(initialOffset),
-      m_initialVelocity(Eigen::Vector3d(0.0,0.0,0.0)) {}
+BlockSource::BlockSource(Fluid *fluid, const Eigen::Vector3i& initialDimension, double initialSpacing,
+                         const Eigen::Vector3d& initialOffset, const Eigen::Vector3d& initialVelocity)
+                            : Source(fluid), m_initialDimension(initialDimension), m_initialSpacing(initialSpacing), 
+                            m_initialOffset(initialOffset), m_initialVelocity(initialVelocity) {}
 
+BlockSource::BlockSource(Fluid *fluid, const Eigen::Vector3i& initialDimension,
+                         const Eigen::Vector3d& initialOffset, const Eigen::Vector3d& initialVelocity)
+                            : Source(fluid), m_initialDimension(initialDimension), m_initialOffset(initialOffset),
+                            m_initialVelocity(initialVelocity) {
+    m_initialSpacing = std::cbrt(fluid->m_particleMass / fluid->m_restDensity) * 1.01;
+}
 
 void BlockSource::init() {
     auto& d = m_initialDimension;

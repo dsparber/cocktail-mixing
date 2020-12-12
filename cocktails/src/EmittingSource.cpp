@@ -3,7 +3,6 @@
 
 EmittingSource::EmittingSource(Fluid *fluid, const Eigen::Vector3d& position, const Eigen::Vector3d& velocity)
      : Source(fluid), m_position(position), m_particleVelocity(velocity) {
-    std::cout << "Emitting source init\n";
 
     m_particlesPerSecond = 20;
     m_maxParticles = 3000;
