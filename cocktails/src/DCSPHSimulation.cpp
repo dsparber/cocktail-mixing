@@ -94,7 +94,6 @@ void DCSPHSimulation::updateForce() {
                                 m_boundary_repulsion *
                                 r_ij.normalized() *
                                 m_kernels->wPoly6(r*r);
-                        // TODO(Daniel): continue? 
                         continue;
                     }
 
@@ -115,7 +114,6 @@ void DCSPHSimulation::updateForce() {
 
                 f_viscosity /= d_i;
                 
-                // TODO(Daniel): divide by density? m_i * d_i = rho_i
                 f_boundary /= d_i;
 
                 if(normalColor.norm() > fluid->m_tension_thres)
