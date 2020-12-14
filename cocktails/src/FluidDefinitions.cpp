@@ -26,12 +26,14 @@ namespace fluids {
 
     Fluid *rum = new Fluid(
             "Rum",
-            5.5,
+            10.5,
             2000.,
             900.,
             1,
             Eigen::Vector3d(245, 188, 147) / 255,
-            false
+            false,
+            5.,
+            1e-6
     );
 
     Fluid *orangeJuice = new Fluid(
@@ -41,7 +43,9 @@ namespace fluids {
             1200,
             1,
             Eigen::Vector3d(245, 139, 0) / 255,
-            false
+            false,
+            5.,
+            1e-6
     );
 
 
@@ -52,7 +56,9 @@ namespace fluids {
             1400,
             1,
             Eigen::Vector3d(238., 195., 109.).normalized(),
-            false
+            false,
+            5.,
+            1e-6
     );
 
     std::vector<Fluid*> all = {boundary, water, rum, orangeJuice, honey};

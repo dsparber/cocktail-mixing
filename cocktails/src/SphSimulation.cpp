@@ -8,7 +8,7 @@ SphSimulation::SphSimulation() : FluidSimulation() {
     m_gridWidth = 0.2;
     m_kernelRadius = 0.2;
     m_neighborSearch = new UniformGridNeighborSearch(m_gridWidth);
-    m_boundary_repulsion = 100.;
+    m_boundary_repulsion = 2000.;
     m_kernels = new SPHKernels(m_kernelRadius);
 }
 

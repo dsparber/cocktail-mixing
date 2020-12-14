@@ -37,6 +37,9 @@ public:
 	std::string m_mesh_path;
 	std::string m_particles_path;
 
+	int m_save_freq;
+	int m_max_save_step;
+
 protected:
 
 	static void runParallel(int elementCount, const std::function<void(int, int)>& f);
@@ -47,7 +50,7 @@ private:
     Eigen::MatrixXi F;  // Faces (indices of vertices)
 	Eigen::MatrixXd C;  // Colors per face
 	bool m_save_simulation;
-	int m_save_freq;
+
 
 };
 

@@ -14,6 +14,8 @@ public:
 
     double wPoly6(double r2) const;
 
+    static double wPoly6(double r2, double h);
+
     Eigen::Vector3d gwPoly6(const Eigen::Vector3d& r) const;
 
     double lwPoly6(double r2) const;

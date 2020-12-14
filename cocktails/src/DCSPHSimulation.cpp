@@ -89,7 +89,7 @@ void DCSPHSimulation::updateForce() {
                     double r2 = r*r;
                     // Boundary repulsion
                     if (neighbor->m_fluid->m_isBoundary) {
-                        double cap = (r2 > 1e-5) ? r2 : 1e-5; // to much repulsion of particles getting to close
+                        // double cap = (r2 > 1e-5) ? r2 : 1e-5; // to much repulsion of particles getting to close
                         f_boundary +=
                                 m_boundary_repulsion *
                                 r_ij.normalized() *

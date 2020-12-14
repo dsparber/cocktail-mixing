@@ -6,7 +6,7 @@
 #include <igl/copyleft/marching_cubes.h>
 
 SurfaceExtractor::SurfaceExtractor() {
-    m_res = 0.01;
+    m_res = 0.04;
     m_kernel_radius = 0.2;
     m_isolevel = 0.7;
     m_m = Eigen::Vector3d(-1, 0, -1);

@@ -11,11 +11,12 @@ FluidSimulation::FluidSimulation() : Simulation() {
     m_sources = vector<Source*>();
     m_use_particle_color = false;
     m_save_simulation = false;
-    m_save_freq = 100;
     m_surface_extractor = new SurfaceExtractor();
     m_mesh_path = "../../mesh";
     m_particles_path = "../../particles";
     m_scene = new BoxScene(Eigen::Vector3d(0,0,0), Eigen::Vector3d(1,1,1));
+    m_save_freq = 100;
+    m_max_save_step = 1000;
 }
 
 void FluidSimulation::init() {
@@ -39,7 +40,7 @@ bool FluidSimulation::advance() {
     m_step++;
 
     // save mesh
-    if(m_save_simulation && (m_step % m_save_freq == 0)) {
+    if(m_save_simulation && (m_step % m_save_freq == 0) && m_step < m_max_save_step) {
         exportMesh();
         exportParticles();
     }
@@ -92,7 +93,7 @@ void FluidSimulation::runParallel(int elementCount, const std::function<void(int
     }
 
     for (int i = 0; i < numThreads; ++i) {
-        int start = std::min(elementCount - 1, i * elementsPerThread);
+        int start = std::min(elementCount, i * elementsPerThread);
         int end = std::min(elementCount, (i + 1) * elementsPerThread);
         threads[i] = std::thread(f, start, end);
     }

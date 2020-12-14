@@ -39,24 +39,27 @@ public:
         // m_scene_max << 100, 100, 100;
         // m_scene_min << -100, 0., -100;
 
-        m_scene_max << 2., 10., 2.;
-        m_scene_min << -2., 0., -2.;
+        m_scene_max << 4., 6., 4.;
+        m_scene_min << -4., 0., -4.;
 
         // m_scene_min << -0.6, 0., -1.;
         // m_scene_max << 0.1, 10., 1;
 
-        m_boundary_particles_path = "../../data/water_glass.xyz";
-
+        m_boundary_particles_path = "../../data/water_glass_5.xyz";
+        string bottom = "../data/bottom_5.xyz";
         simulation = new DCSPHSimulation();
 
         // simulation = new SphSimulation();
         
         simulation->init();
 
-        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(7, 7, 7), Eigen::Vector3d(-0.3, 3, -0.1)));
+        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(10, 10, 10), Eigen::Vector3d(-0.3, 5, -0.1)));
         simulation->m_sources.back()->init();
 
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
+        simulation->m_sources.back()->init();
+
+        simulation->m_sources.push_back(new CustomSource(fluids::boundary, bottom));
         simulation->m_sources.back()->init();
 
         // simulation->m_sources.push_back(new EmittingSource(fluids::water, Eigen::Vector3d(-0.5, 3, -0.5), Eigen::Vector3d(0.1, -0.5, 0.1)));
@@ -149,6 +152,10 @@ public:
             if(ImGui::Button("Save Mesh", ImVec2(-1, 0))) {
                 simulation->exportMesh();
             }
+
+            ImGui::InputInt("Save every", &simulation->m_save_freq);
+            ImGui::InputInt("Max step", &simulation->m_max_save_step);
+
             ImGui::InputDouble("Isolevel", &simulation->m_surface_extractor->m_isolevel);
             ImGui::InputDouble("Resolution", &simulation->m_surface_extractor->m_res);
             ImGui::InputDouble("Kernel Radius Rec", &simulation->m_surface_extractor->m_kernel_radius);

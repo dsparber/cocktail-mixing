@@ -1,4 +1,5 @@
 #include "../include/SPHKernels.h"
+#include "../include/Constants.h"
 
 SPHKernels::SPHKernels(double kernelRadius) {
     m_h = kernelRadius;
@@ -13,6 +14,10 @@ SPHKernels::SPHKernels(double kernelRadius) {
 
 double SPHKernels::wPoly6(double r2) const{
     return  cPoly6 * pow(m_h2 - r2, 3);
+}
+
+double SPHKernels::wPoly6(double r2, double h){
+    return constants::poly6 * pow(h*h - r2, 3) / pow(h, 9);
 }
 
 Eigen::Vector3d SPHKernels::gwPoly6(const Eigen::Vector3d& r) const{
