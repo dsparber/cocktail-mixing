@@ -29,6 +29,10 @@ public:
 	Eigen::Vector3d m_M; // max coordinate of the bounding box
 
 	SPHKernels* m_kernels;
+private:
+	double computeDensity(const Eigen::Vector3d& pos, const std::vector<Particle*>& neighbors);
+	double computeSDF(const Eigen::Vector3d& pos, const std::vector<Particle*>& neighbors);
+
 };
 
 

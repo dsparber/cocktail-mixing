@@ -12,17 +12,17 @@ class SPHKernels{
 public:
     SPHKernels(double kernelRadius);
 
-    double wPoly6(double r2);
+    double wPoly6(double r2) const;
 
-    Eigen::Vector3d gwPoly6(const Eigen::Vector3d& r);
+    Eigen::Vector3d gwPoly6(const Eigen::Vector3d& r) const;
 
-    double lwPoly6(double r2);
+    double lwPoly6(double r2) const;
 
-    double wSpiky(double r);
+    double wSpiky(double r) const;
 
-    Eigen::Vector3d gwSpiky(const Eigen::Vector3d& r);
+    Eigen::Vector3d gwSpiky(const Eigen::Vector3d& r) const;
 
-    double lwVisc(double r);
+    double lwVisc(double r) const;
 
 private:
     double m_h;

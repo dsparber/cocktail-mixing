@@ -14,14 +14,14 @@ namespace fluids {
 
     Fluid *water = new Fluid(
             "Water",
-            20.,
+            4.,
             2000.,
             1000.,
             1.,
             Eigen::Vector3d(0.0, 0.0, 1.0),
             false,
-            20.,
-            1e-7
+            5.,
+            1e-6
     );
 
     Fluid *rum = new Fluid(

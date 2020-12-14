@@ -7,7 +7,9 @@ DCSPHSimulation::DCSPHSimulation() : SphSimulation() {}
 
 void DCSPHSimulation::updateDensityAndPressure() {
     for (auto& fluid : m_fluids) {
+
         if(fluid->m_isBoundary) continue;
+        
         // Define function for parallelism
         auto f = [fluid, this](int start, int end) {
 
@@ -25,9 +27,6 @@ void DCSPHSimulation::updateDensityAndPressure() {
                     double r2 = (particle.m_pos - neighbor->m_pos).squaredNorm();
                     particle.m_density += m_kernels->wPoly6(r2); // particle density
                 }
-
-                // pressure
-                // particle.m_pressure = std::max(0., fluid->m_stiffness * (particle.m_mass * particle.m_density - fluid->m_restDensity));
 
                 // Pressure using Tait equation (11)
                 particle.m_pressure = std::max(0., constants::taitEq(fluid->m_stiffness, fluid->m_restDensity, particle.m_mass * particle.m_density));
@@ -62,7 +61,7 @@ void DCSPHSimulation::updateForce() {
                 Eigen::Vector3d f_boundary = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_interface = Eigen::Vector3d::Zero();
 
-                double lapColor = 0;
+                double lapColor = 0.0;
                 Eigen::Vector3d normalColor = Eigen::Vector3d::Zero();
 
                 // Helper variables
@@ -70,7 +69,7 @@ void DCSPHSimulation::updateForce() {
                 auto &p_i = particle.m_pressure;
                 auto &r_i = particle.m_pos;
                 auto &v_i = particle.m_vel;
-                auto &d_i = particle.m_density;
+                auto &d_i = particle.m_density; // particle density
                 auto &mu_i = fluid->m_viscosity;
 
                 // Gravitational force
@@ -87,9 +86,10 @@ void DCSPHSimulation::updateForce() {
                     auto &mu_j = neighbor->m_fluid->m_viscosity;
                     Eigen::Vector3d r_ij = r_i - r_j;
                     double r = r_ij.norm();
-
+                    double r2 = r*r;
                     // Boundary repulsion
                     if (neighbor->m_fluid->m_isBoundary) {
+                        double cap = (r2 > 1e-5) ? r2 : 1e-5; // to much repulsion of particles getting to close
                         f_boundary +=
                                 m_boundary_repulsion *
                                 r_ij.normalized() *
@@ -98,9 +98,6 @@ void DCSPHSimulation::updateForce() {
                     }
 
                     // Pressure
-                    //f_pressure -= (p_i + p_j) / (2 * d_j)
-                    //                * m_kernels->gwSpiky(r_ij);
-
                     f_pressure -= ((p_i/(d_i*d_i)) + (p_j/(d_j * d_j))) * m_kernels->gwSpiky(r_ij);
                  
                     // Viscosity
@@ -108,7 +105,7 @@ void DCSPHSimulation::updateForce() {
                                    * m_kernels->lwVisc(r);
 
                     // Interface Tension Forces as in Mueller 03
-                    lapColor += m_j * m_kernels->lwPoly6(r*r) / d_j;
+                    lapColor += m_j * m_kernels->lwPoly6(r2) / d_j;
                     normalColor += m_j * m_kernels->gwPoly6(r_ij) / d_j;
                 }
 
@@ -123,11 +120,12 @@ void DCSPHSimulation::updateForce() {
                 // if(f_boundary.norm() > 1e-6)
                 //     std::cout << f_external.norm() << " " << f_pressure.norm() << " " << f_viscosity.norm() << " " << f_interface.norm() << " " << f_boundary.norm() << std::endl;
 
-                Eigen::Vector3d f = f_external
-                                    + f_pressure
-                                    + f_viscosity
-                                    + f_boundary
-                                    + f_interface;
+                Eigen::Vector3d f =
+                        f_external +
+                        f_pressure +
+                        f_viscosity +
+                        f_interface +
+                        f_boundary;
 
                 particle.m_acc = f / m_i;
             }

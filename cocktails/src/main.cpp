@@ -48,6 +48,7 @@ public:
         m_boundary_particles_path = "../../data/water_glass.xyz";
 
         simulation = new DCSPHSimulation();
+
         // simulation = new SphSimulation();
         
         simulation->init();

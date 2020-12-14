@@ -50,12 +50,10 @@ void SurfaceExtractor::createMesh(std::vector<Particle>& particles, std::string 
                 //calculate density using SPH kernel
                 std::vector<Particle*> neighbors;
                 neighbors = neighborSearch->getNeighbors(pos, m_kernel_radius);
-                double density = 0.0;
-                for(Particle* neighbor : neighbors) {
-                    double r2 = (pos - neighbor->m_pos).squaredNorm();
-                    density += neighbor->m_mass * m_kernels->wPoly6(r2) / neighbor->m_density;
-                }
-                densities(c) = density;
+        
+                // densities(c) = computeDensity(pos, neighbors);
+                densities(c) = computeSDF(pos, neighbors);
+
                 c++;
             }
         }
@@ -71,4 +69,23 @@ void SurfaceExtractor::createMesh(std::vector<Particle>& particles, std::string 
     igl::writeOBJ(file_path, vertices, faces);
     std::cout << "Save mesh to " << file_path << '\n';
 
+}
+
+double SurfaceExtractor::computeDensity(const Eigen::Vector3d& pos, const std::vector<Particle*>& neighbors) {
+    double density = 0.0;
+    for(Particle* neighbor : neighbors) {
+        double r2 = (pos - neighbor->m_pos).squaredNorm();
+        density += neighbor->m_mass * m_kernels->wPoly6(r2) / neighbor->m_density;
+    }
+    return density;
+}
+
+/* According to paper: Particle-based Viscoelastic Fluid Simulation */
+double SurfaceExtractor::computeSDF(const Eigen::Vector3d& pos, const std::vector<Particle*>& neighbors) {
+    double density = 0.0;
+    for(Particle* neighbor : neighbors) {
+        double r = (pos - neighbor->m_pos).norm();
+        density += std::pow((1 - r/m_kernel_radius), 2);
+    }
+    return std::sqrt(density);
 }

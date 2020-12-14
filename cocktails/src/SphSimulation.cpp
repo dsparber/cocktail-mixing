@@ -8,7 +8,7 @@ SphSimulation::SphSimulation() : FluidSimulation() {
     m_gridWidth = 0.2;
     m_kernelRadius = 0.2;
     m_neighborSearch = new UniformGridNeighborSearch(m_gridWidth);
-    m_boundary_repulsion = 2000.;
+    m_boundary_repulsion = 100.;
     m_kernels = new SPHKernels(m_kernelRadius);
 }
 
@@ -44,7 +44,9 @@ void SphSimulation::updateNeighbors() {
 
 
 void SphSimulation::updateDensityAndPressure() {
-    for (auto& fluid : m_fluids) {
+    for (auto& fluid : m_fluids) { 
+
+        if(fluid->m_isBoundary) continue;
 
         // Define function for parallelism
         auto f = [fluid, this](int start, int end) {
@@ -76,25 +78,24 @@ void SphSimulation::updateDensityAndPressure() {
 void SphSimulation::updateForce() {
     for (auto& fluid : m_fluids) {
 
+        if(fluid->m_isBoundary) continue;
+
         // Define function for parallelism
         auto f = [fluid, this](int start, int end) {
-
+            double max_force = 0;
+            
             // Actual computation
             for (int i = start; i < end; ++i) {
                 auto &particle = fluid->m_particles.at(i);
 
+                Eigen::Vector3d f_external = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_pressure = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_viscosity = Eigen::Vector3d::Zero();
-                Eigen::Vector3d f_external = Eigen::Vector3d::Zero();
-                Eigen::Vector3d f_surface = Eigen::Vector3d::Zero();
-                Eigen::Vector3d f_interface = Eigen::Vector3d::Zero();
                 Eigen::Vector3d f_boundary = Eigen::Vector3d::Zero();
+                Eigen::Vector3d f_interface = Eigen::Vector3d::Zero();
 
                 double lapColor = 0.0;
                 Eigen::Vector3d normalColor = Eigen::Vector3d::Zero();
-
-                // Gravity
-                f_external += constants::g * particle.m_density;
 
                 // Helper variables
                 auto &m_i = particle.m_mass;
@@ -102,6 +103,10 @@ void SphSimulation::updateForce() {
                 auto &r_i = particle.m_pos;
                 auto &v_i = particle.m_vel;
                 auto &rho_i = particle.m_density;
+                auto &mu_i = fluid->m_viscosity;
+
+                // Gravity
+                f_external += constants::g * rho_i;
 
                 for (Particle *neighbor : particle.m_neighbors) {
 
@@ -111,36 +116,41 @@ void SphSimulation::updateForce() {
                     auto &r_j = neighbor->m_pos;
                     auto &v_j = neighbor->m_vel;
                     auto &rho_j = neighbor->m_density;
-                    Eigen::Vector3d r = r_i - r_j;
+                    Eigen::Vector3d r_ij = r_i - r_j;
+                    double r = r_ij.norm();
 
                     // Boundary repulsion
                     if (neighbor->m_fluid->m_isBoundary) {
                         f_boundary +=
                                 m_boundary_repulsion *
-                                r.normalized() *
-                                m_kernels->wPoly6(r.squaredNorm());
+                                r_ij.normalized() *
+                                m_kernels->wPoly6(r*r);
+                        if(f_boundary.norm() > 2000) {
+                            f_boundary = f_boundary.normalized() * 2000;
+                        }
                         continue;
                     }
 
                     // Pressure
                     f_pressure -= m_j * (p_i + p_j) / (2 * rho_j)
-                                  * m_kernels->gwSpiky(r);
+                                  * m_kernels->gwSpiky(r_ij);
 
                     // Viscosity
                     f_viscosity += m_j * (v_j - v_i) / rho_j
-                                   * m_kernels->lwVisc(r.norm());
+                                   * m_kernels->lwVisc(r);
                     
                     // Surface tension
-                    lapColor += m_j * m_kernels->lwPoly6(r.squaredNorm()) / rho_j;
-                    normalColor += m_j * m_kernels->gwPoly6(r) / rho_j;
+                    lapColor += m_j * m_kernels->lwPoly6(r*r) / rho_j;
+                    normalColor += m_j * m_kernels->gwPoly6(r_ij) / rho_j;
                 }
 
-                f_viscosity *= fluid->m_viscosity;
+                f_viscosity *= mu_i;
 
                 if(normalColor.norm() >= fluid->m_tension_thres)
                     f_interface = - fluid->m_tension * lapColor * normalColor.normalized();
 
                 // std::cout << f_external.norm() << " " << f_pressure.norm() << " " << f_viscosity.norm() << " " << f_interface.norm() << std::endl;
+                std::cout << max_force << "\n";
 
                 Eigen::Vector3d f =
                         f_external +
@@ -148,7 +158,7 @@ void SphSimulation::updateForce() {
                         f_viscosity +
                         f_interface;
 
-                particle.m_acc = f / particle.m_density;
+                particle.m_acc = f / rho_i + f_boundary / m_i;
             }
         };
 
