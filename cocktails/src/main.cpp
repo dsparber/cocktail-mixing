@@ -10,9 +10,8 @@
 #include "../include/SimulationLoader.h"
 
 /*
- * This class is a GUI for our dummy simulation. It extends the basic GUI
- * defined in Gui.h. We could add more controls and visuals here, but we don't
- * need any additional functionality for this dummy simulation.
+ * This class is a GUI for our simulation. It extends the basic GUI
+ * defined in Gui.h.
  */
 class MainGui : public Gui {
 public:
@@ -28,35 +27,26 @@ public:
     string m_boundary_particles_path;
 
 	MainGui() {
+	    // Entry point
+
+	    // Setup member variables
         m_fluid_chooser = 0;
         for(auto& fluid : fluids::all) {
             m_fluid_names.push_back(fluid->m_name);
         }
 
-        m_solver_chooser = 0;
+        m_solver_chooser = 1;
         m_solver_names = {"SPH", "DCSPH"};
 
-        // m_scene_max << 100, 100, 100;
-        // m_scene_min << -100, 0., -100;
 
-        m_scene_max << 2., 10., 2.;
-        m_scene_min << -2., 0., -2.;
-
-        // m_scene_min << -0.6, 0., -1.;
-        // m_scene_max << 0.1, 10., 1;
-
-        m_boundary_particles_path = "../../data/water_glass.xyz";
-
+        // Setup simulation
         simulation = new DCSPHSimulation();
-
-        // simulation = new SphSimulation();
-        
         simulation->init();
+        setSimulation(simulation);
 
+
+        // Add particle sources
         simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(7, 7, 7), Eigen::Vector3d(-0.3, 3, -0.1)));
-        simulation->m_sources.back()->init();
-
-        simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
 
         // simulation->m_sources.push_back(new EmittingSource(fluids::water, Eigen::Vector3d(-0.5, 3, -0.5), Eigen::Vector3d(0.1, -0.5, 0.1)));
@@ -67,9 +57,21 @@ public:
 
         // simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(40, 40, 40), 0.11, Eigen::Vector3d(-2, 8, -2)));
         // simulation->m_sources.back()->init();
+
+
+        // Boundary particles
+        m_boundary_particles_path = "../../data/water_glass.xyz";
+        simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
+        simulation->m_sources.back()->init();
+
+
+        // Setup bounding box for scene
+        m_scene_max << 2., 10., 2.;
+        m_scene_min << -2., 0., -2.;
         simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
 
-        setSimulation(simulation);
+
+        // Start GUI
         start();
 	}
 
@@ -93,7 +95,7 @@ public:
             }
 
             delete simulation;
-            simulation = NULL;
+            simulation = nullptr;
             simulation = tmp;
             setSimulation(simulation);
             simulation->init();

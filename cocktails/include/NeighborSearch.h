@@ -5,6 +5,7 @@
 #include <map>
 #include "Particle.h"
 
+/// Base class for all neighborhood searches
 class NeighborSearch {
 
 public:

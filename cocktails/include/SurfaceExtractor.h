@@ -10,6 +10,7 @@
 class NeighborSearch;
 class Particle;
 
+/// Given particle locations from an SPH simulation, calculate the densities and extract an iso surface
 class SurfaceExtractor {
 public:
 

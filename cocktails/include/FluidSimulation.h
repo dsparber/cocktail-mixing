@@ -8,6 +8,9 @@
 #include "Source.h"
 #include "SurfaceExtractor.h"
 
+
+/// Base class for fluid Simulations
+/// Provides basic functionalities, like managing particles and displaying them
 class FluidSimulation : public Simulation {
 public:
     explicit FluidSimulation();

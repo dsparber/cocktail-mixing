@@ -1,7 +1,6 @@
 #include "../include/DCSPHSimulation.h"
 #include "../include/Constants.h"
 #include "../include/UniformGridNeighborSearch.h"
-#include <iostream>
 
 DCSPHSimulation::DCSPHSimulation() : SphSimulation() {}
 

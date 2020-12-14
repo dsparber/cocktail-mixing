@@ -34,15 +34,8 @@ Main reference: [Particle-Based Fluid Simulation for Interactive Applications][m
 ### Performance
 - Multithreading: Run calculations for a simulation step on all available CPU cores.
 - Optimized kernels: Precompute all constant parameters
+- Uniform grid neighbor search
 - Skip unnecessary computations for boundary particles
-
-
-## TODO
-- Scene loader, initialize file format to load the simulation
-- Ability to save the current simulation state.
-- Debug DCSPH
-- Rendering
-- Implement Diffusion Equation
 
 
 ## Additional References

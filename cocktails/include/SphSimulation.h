@@ -9,9 +9,7 @@
 #include <string>
 
 
-/*
- * Mueller03 Basic SPH implementation with multi-threading
- */
+/// Mueller03 Basic SPH implementation with multi-threading
 class SphSimulation : public FluidSimulation {
 public:
     SphSimulation();

@@ -7,7 +7,7 @@
 #include <vector>
 #include <Eigen/Dense>
 
-
+/// Adds vector of particles to scene
 class StateSource : public Source {
 
 public:

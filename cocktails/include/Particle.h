@@ -5,6 +5,7 @@
 
 class Fluid;
 
+/// Describes an individual particle, holds all relevant properties
 class Particle {
 
 public:

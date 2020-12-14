@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <random>
 
+/// Continuously generates blocks of particles
 class EmittingSource : public Source {
 
 public:

@@ -5,6 +5,7 @@
 #include <tuple>
 #include "NeighborSearch.h"
 
+/// Efficient neighborhood search implementation
 class UniformGridNeighborSearch : public NeighborSearch {
 
 public:

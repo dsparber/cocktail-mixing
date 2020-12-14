@@ -4,6 +4,7 @@
 #include <vector>
 #include "Fluid.h"
 
+/// Base class for all sources. A source is responsible for generating particles.
 class Source {
 
 public:

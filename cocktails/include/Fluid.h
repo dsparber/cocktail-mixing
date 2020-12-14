@@ -4,6 +4,7 @@
 #include <vector>
 #include "Particle.h"
 
+/// Holds all fluid properties and contains all particles for this fluid
 class Fluid {
 
 public:

@@ -5,6 +5,8 @@
 #include <igl/opengl/glfw/Viewer.h>
 #include "Particle.h"
 
+
+/// Base class for analytic scenes
 class Scene {
 public:
 	Scene() {};

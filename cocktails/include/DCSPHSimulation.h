@@ -4,9 +4,9 @@
 #include "SphSimulation.h"
 #include "NeighborSearch.h"
 
-/*
- * Sol08 Density Contrast SPH
- */
+///
+/// Sol08 Density Contrast SPH
+///
 class DCSPHSimulation : public SphSimulation {
 public:
     DCSPHSimulation();
