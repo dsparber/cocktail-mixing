@@ -1,26 +1,28 @@
 #include "../include/BlockSource.h"
 
-BlockSource::BlockSource(Fluid *fluid) : Source(fluid) {
-    m_initialDimension << 10, 10, 10;
-    m_initialSpacing = .1;
-    m_initialOffset << 1.5, 2.5, 1.5;
-    m_initialVelocity << 0.0, 0.0, 0.0;
-}
+#include <utility>
 
-BlockSource::BlockSource(Fluid *fluid, const Eigen::Vector3i& initialDimension, double initialSpacing,
-                         const Eigen::Vector3d& initialOffset, const Eigen::Vector3d& initialVelocity)
-                            : Source(fluid), m_initialDimension(initialDimension), m_initialSpacing(initialSpacing), 
-                            m_initialOffset(initialOffset), m_initialVelocity(initialVelocity) {}
+BlockSource::BlockSource(Fluid *fluid)
+        : Source(fluid),
+          m_initialDimension(10, 10, 10),
+          m_initialSpacing(.1),
+          m_initialOffset(1.5, 2.5, 1.5),
+          m_initialVelocity(0.0, 0.0, 0.0) {}
 
-BlockSource::BlockSource(Fluid *fluid, const Eigen::Vector3i& initialDimension,
-                         const Eigen::Vector3d& initialOffset, const Eigen::Vector3d& initialVelocity)
-                            : Source(fluid), m_initialDimension(initialDimension), m_initialOffset(initialOffset),
-                            m_initialVelocity(initialVelocity) {
-    m_initialSpacing = std::cbrt(fluid->m_particleMass / fluid->m_restDensity) * 1.01;
-}
+BlockSource::BlockSource(
+        Fluid *fluid,
+        Eigen::Vector3i initialDimension,
+        Eigen::Vector3d initialOffset,
+        Eigen::Vector3d initialVelocity)
+        : Source(fluid),
+          m_initialDimension(std::move(initialDimension)),
+          m_initialOffset(std::move(initialOffset)),
+          m_initialVelocity(std::move(initialVelocity)),
+          m_initialSpacing(std::cbrt(fluid->m_particleMass / fluid->m_restDensity) * 1.01) {}
+
 
 void BlockSource::init() {
-    auto& d = m_initialDimension;
+    auto &d = m_initialDimension;
 
     for (int x = 0; x < d.x(); ++x) {
         for (int y = 0; y < d.y(); ++y) {
@@ -40,5 +42,5 @@ void BlockSource::init() {
 }
 
 std::string BlockSource::toString() {
-    return "Block Source (" + m_fluid->m_name +")";
+    return "Block Source (" + m_fluid->m_name + ")";
 }

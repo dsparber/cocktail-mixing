@@ -5,18 +5,28 @@
 #include <igl/opengl/glfw/Viewer.h>
 #include "Particle.h"
 
+
+/// Base class for analytic scenes
 class Scene {
 public:
 	Scene() {};
 
 	virtual ~Scene() {}
 
+
+	/// Draw scene on the viewer
 	virtual void draw(igl::opengl::glfw::Viewer& viewer) = 0;
 
+
+	/// Returns true if a given point pos is out of bounds
 	virtual bool outOfBoundary(const Eigen::Vector3d& pos) = 0;
 
+
+	/// Returns the bounding box
 	virtual void getMinMax(Eigen::Vector3d& minCoordinate, Eigen::Vector3d& maxCoordinate) = 0;
 
+
+	/// When a particle collides with the Scene, reflect it with respect to the surface normal
 	void updateOnBoundaryCollision(Particle& particle, const double dt) {
 		Eigen::Vector3d intersection, normal;
 		getIntersectionPointAndSurfaceNormal(particle.m_pos, dt * particle.m_vel, intersection, normal);

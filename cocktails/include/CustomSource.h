@@ -6,6 +6,7 @@
 #include <Eigen/Dense>
 #include <string>
 
+/// Places particles based on a .xyz file
 class CustomSource : public Source {
 public:
     CustomSource(Fluid* fluid, std::string& file_path);

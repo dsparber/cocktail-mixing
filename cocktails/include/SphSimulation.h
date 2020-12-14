@@ -9,9 +9,7 @@
 #include <string>
 
 
-/*
- * Mueller03 Basic SPH implementation with multi-threading
- */
+/// Mueller03 Basic SPH implementation with multi-threading
 class SphSimulation : public FluidSimulation {
 public:
     SphSimulation();
@@ -19,9 +17,20 @@ public:
 	virtual bool advance() override;
 	virtual void resetMembers() override;
 
+	/// SPH Kernel radius
 	double m_kernelRadius;
-	double m_gridWidth; // Width of a cell in the uniform grid, ideally equal to kernel Radius
+
+	/// Width of a cell in the uniform grid, ideally equal to kernel Radius
+	double m_gridWidth;
+
+	/// Regulates the strength of the boundary repulsion
 	double m_boundary_repulsion;
+
+	/// If true, gravity force will act on all particles
+    bool m_enableGravity = true;
+
+    /// If true, surface tension forces will be added
+    bool m_enableSurfaceTension = true;
 
 protected:
 
@@ -35,6 +44,7 @@ protected:
 	SPHKernels* m_kernels;
 
 	friend class SimulationLoader;
+
 };
 
 #endif // PBS_SPH_SIMULATION_H

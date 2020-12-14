@@ -5,6 +5,7 @@
 #include <igl/opengl/glfw/Viewer.h>
 #include "Scene.h"
 
+/// A simple analytical bounding box scene
 class BoxScene : public Scene {
 public:
     BoxScene(const Eigen::Vector3d& m, const Eigen::Vector3d& M);

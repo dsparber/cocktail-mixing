@@ -106,7 +106,9 @@ void SphSimulation::updateForce() {
                 auto &mu_i = fluid->m_viscosity;
 
                 // Gravity
-                f_external += constants::g * rho_i;
+                if (m_enableGravity) {
+                    f_external += constants::g * rho_i;
+                }
 
                 for (Particle *neighbor : particle.m_neighbors) {
 
@@ -146,7 +148,7 @@ void SphSimulation::updateForce() {
 
                 f_viscosity *= mu_i;
 
-                if(normalColor.norm() >= fluid->m_tension_thres)
+                if(m_enableSurfaceTension && normalColor.norm() >= fluid->m_tension_thres)
                     f_interface = - fluid->m_tension * lapColor * normalColor.normalized();
 
                 // std::cout << f_external.norm() << " " << f_pressure.norm() << " " << f_viscosity.norm() << " " << f_interface.norm() << std::endl;

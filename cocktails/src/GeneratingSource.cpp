@@ -4,9 +4,9 @@ GeneratingSource::GeneratingSource(Fluid *fluid) : Source(fluid) {
     m_particlesPerSecond = 50;
     m_maxParticles = 3000;
 
-    m_position << 0, 5, 0;
+    m_position << 0, 3, 0;
     m_positionStdDeviation = 0.1;
-    m_particleVelocity << 0.1, -0.5, 0.1;
+    m_particleVelocity << 0.0, -0.5, 0.0;
     m_particleVelocityStdDeviation = 0;
 
     m_particleCount = 0;

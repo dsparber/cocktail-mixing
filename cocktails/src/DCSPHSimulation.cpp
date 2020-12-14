@@ -1,7 +1,6 @@
 #include "../include/DCSPHSimulation.h"
 #include "../include/Constants.h"
 #include "../include/UniformGridNeighborSearch.h"
-#include <iostream>
 
 DCSPHSimulation::DCSPHSimulation() : SphSimulation() {}
 
@@ -73,7 +72,9 @@ void DCSPHSimulation::updateForce() {
                 auto &mu_i = fluid->m_viscosity;
 
                 // Gravitational force
-                f_external = constants::g * m_i;
+                if (m_enableGravity) {
+                    f_external += constants::g * m_i;
+                }
 
                 for (Particle *neighbor : particle.m_neighbors) {
 
@@ -113,7 +114,7 @@ void DCSPHSimulation::updateForce() {
                 
                 f_boundary /= d_i;
 
-                if(normalColor.norm() > fluid->m_tension_thres)
+                if (m_enableSurfaceTension && normalColor.norm() > fluid->m_tension_thres)
                     f_interface -= fluid->m_tension * lapColor * normalColor.normalized() / d_i;
 
                 // DEBUGGING

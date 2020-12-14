@@ -4,12 +4,12 @@
 EmittingSource::EmittingSource(Fluid *fluid, const Eigen::Vector3d& position, const Eigen::Vector3d& velocity)
      : Source(fluid), m_position(position), m_particleVelocity(velocity) {
 
-    m_particlesPerSecond = 20;
+    m_particlesPerSecond = 60;
     m_maxParticles = 3000;
 
     m_x = 4;
-    m_y = 4;
-    m_z = 1;
+    m_y = 1;
+    m_z = 4;
     m_spacing = 1.1 * std::cbrt(fluid->m_particleMass / fluid->m_restDensity);
 
     m_particleCount = 0;

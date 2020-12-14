@@ -5,6 +5,7 @@
 #include <Eigen/Dense>
 #include <random>
 
+/// Continuously generates blocks of particles
 class EmittingSource : public Source {
 
 public:
@@ -18,7 +19,7 @@ public:
 
 
     explicit EmittingSource(Fluid *fluid, const Eigen::Vector3d& position=Eigen::Vector3d(0.,5.,0.),
-        const Eigen::Vector3d& velocity = Eigen::Vector3d(0.1, -0.5, 0.1));
+        const Eigen::Vector3d& velocity = Eigen::Vector3d(0.0, -0.5, 0.0));
 
     void init() override;
 

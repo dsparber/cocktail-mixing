@@ -5,6 +5,8 @@
 #include <tuple>
 #include "NeighborSearch.h"
 
+/// Iterates over all particles to find neighbors
+/// Should only be used to verify a more efficient implementation
 class BruteForceNeighborSearch : public NeighborSearch {
 
 public:

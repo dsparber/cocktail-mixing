@@ -5,6 +5,8 @@
 #include <Eigen/Dense>
 #include <random>
 
+
+/// Continuously generates particles
 class GeneratingSource : public Source {
 
 public:

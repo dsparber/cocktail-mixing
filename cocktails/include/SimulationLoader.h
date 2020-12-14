@@ -5,8 +5,7 @@
 
 class SphSimulation;
 
-/* Class for saving and loading SPH simulation states */
-
+/// Class for saving and loading SPH simulation states
 class SimulationLoader{
 public:
     static void saveSimulation(std::string exportPath, SphSimulation* sim);

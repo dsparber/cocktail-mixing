@@ -11,6 +11,59 @@ Simulation of mixing fluids for Physically-based Simulation at ETH Zurich
 | Jela Kovacevic | jelak@ethz.ch    | 15-923-428 |
 
 
+## Install & Run
+
+```shell
+# Build
+mkdir build
+cd build
+cmake ..
+make -j8
+
+# Run
+cd cocktails
+./coktails
+```
+
+## Code Structure
+
+We used the dummy project from the lecture as a template.
+
+- Headers: [cocktails/include](cocktails/include)
+- Source: [cocktails/src](cocktails/src)
+- Main class: [main.cpp](cocktails/src/main.cpp)
+
+The main class handles the initialization of the simulation and starts a simple GUI that visualizes the simulation and can be used to tweak various parameters. 
+
+### Simulations
+
+You can choose between two different types of simulation: 
+- [SphSimulation](cocktails/include/SphSimulation.h) - the vanilla SPH simulation 
+- [DCSPHSimulation](cocktails/include/DCSPHSimulation.h) - the density contrast SPH simulation
+
+### Fluids
+
+A fluid is described by a [Fluid](cocktails/include/Fluid.h) instance and defines SPH parameters.
+Each fluid instance contains a collection of [Particles](cocktails/include/Particle.h).
+
+
+### Sources
+
+A [Source](cocktails/include/Source.h) generates particles. Sources that create particles at initialization are:
+
+- [BlockSource](cocktails/include/BlockSource.h) - generates a block of particles
+- [CustomSource](cocktails/include/CustomSource.h) - generates particles based on a `.xyz` file
+- [StateSource](cocktails/include/StateSource.h) -  generates particles from a saved state (i.e. restores particles)
+
+Additionally, there are two sources that continuously generate particles
+
+- [GeneratingSource](cocktails/include/GeneratingSource.h) - Continuously releases new particles
+- [EmittingSource](cocktails/include/EmittingSource.h) - Emits blocks of particles at some interval
+
+
+
+
+
 ## Features
 
 ### Basic SPH Simulation
@@ -34,15 +87,8 @@ Main reference: [Particle-Based Fluid Simulation for Interactive Applications][m
 ### Performance
 - Multithreading: Run calculations for a simulation step on all available CPU cores.
 - Optimized kernels: Precompute all constant parameters
+- Uniform grid neighbor search
 - Skip unnecessary computations for boundary particles
-
-
-## TODO
-- Scene loader, initialize file format to load the simulation
-- Ability to save the current simulation state.
-- Debug DCSPH
-- Rendering
-- Implement Diffusion Equation
 
 
 ## Additional References

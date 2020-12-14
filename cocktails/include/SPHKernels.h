@@ -3,10 +3,8 @@
 #include <math.h>
 #include <Eigen/Dense>
 
-/*
- * All of the following methods assume 0 <= r <= h and
- */
-
+/// SPH Kernels
+/// All of the following methods assume 0 <= r <= h and
 class SPHKernels{
 
 public:
