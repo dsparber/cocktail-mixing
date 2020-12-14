@@ -109,6 +109,8 @@ public:
         ImGui::InputDouble("Kernel Radius", &simulation->m_kernelRadius);
         ImGui::InputDouble("Grid Width", &simulation->m_gridWidth);
         ImGui::InputDouble("Boundary Repulsion", &simulation->m_boundary_repulsion);
+        ImGui::Checkbox("Enable Gravity", &simulation->m_enableGravity);
+        ImGui::Checkbox("Enable Surface tension", &simulation->m_enableSurfaceTension);
 
         // Coloring
         ImGui::Checkbox("Particle/Fluid coloring", &simulation->m_use_particle_color);
