@@ -117,10 +117,6 @@ void DCSPHSimulation::updateForce() {
                 if (m_enableSurfaceTension && normalColor.norm() > fluid->m_tension_thres)
                     f_interface -= fluid->m_tension * lapColor * normalColor.normalized() / d_i;
 
-                // DEBUGGING
-                // if(f_boundary.norm() > 1e-6)
-                //     std::cout << f_external.norm() << " " << f_pressure.norm() << " " << f_viscosity.norm() << " " << f_interface.norm() << " " << f_boundary.norm() << std::endl;
-
                 Eigen::Vector3d f =
                         f_external +
                         f_pressure +

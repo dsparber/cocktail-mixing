@@ -45,25 +45,25 @@ public:
 
         // Add particle sources
         simulation->m_sources.push_back(new GeneratingSource(fluids::liquid1, 6000., 200.,
-                                            Eigen::Vector3d(0., 5.,0.), 0.1,
-                                            Eigen::Vector3d(0.1,-0.3, -0.5), 0.0));
+                                            Eigen::Vector3d(1., 5.,0.), 0.1,
+                                            Eigen::Vector3d(-0.75,-0.5, -0.5), 0.0));
         simulation->m_sources.back()->init();
-        simulation->m_sources.push_back(new GeneratingSource(fluids::liquid2, 1500., 50.,
-                                            Eigen::Vector3d(-2., 5.,1.0), 0.1,
-                                            Eigen::Vector3d(1.,-0.5, -1.), 0.0));
+        simulation->m_sources.push_back(new GeneratingSource(fluids::liquid2, 2100., 70.,
+                                            Eigen::Vector3d(-2., 5., 0.0), 0.1,
+                                            Eigen::Vector3d(1.5,-1.0, 1.0), 0.0));
         simulation->m_sources.back()->init();
 
         // Boundary particles
         m_boundary_particles_path = "../../data/water_glass_2.xyz";
         string bottom = "../../data/bottom_2.xyz";
-        string waterParticles = "../../data/init_water.xyz";
+
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
 
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, bottom));
         simulation->m_sources.back()->init();
 
-        simulation->m_sources.push_back(new CustomSource(fluids::water, waterParticles));
+        simulation->m_sources.push_back(new BlockSource(fluids::water, Eigen::Vector3i(17, 12, 16), Eigen::Vector3d(-1.2,1,-0.8)));
         simulation->m_sources.back()->init();
 
         // Setup bounding box for scene
