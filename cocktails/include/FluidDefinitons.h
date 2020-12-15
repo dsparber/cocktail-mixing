@@ -12,6 +12,10 @@ namespace fluids {
 
     extern Fluid *honey;
 
+    extern Fluid *liquid1;
+
+    extern Fluid *liquid2;
+    
     extern std::vector<Fluid*> all;
 
     extern std::vector<Fluid*> regularFluids;

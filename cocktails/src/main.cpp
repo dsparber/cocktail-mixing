@@ -38,28 +38,38 @@ public:
         m_solver_chooser = 1;
         m_solver_names = {"SPH", "DCSPH"};
 
+        // Load simulation state
         simulation = new DCSPHSimulation();
         simulation->init();
         setSimulation(simulation);
 
         // Add particle sources
-        simulation->m_sources.push_back(new GeneratingSource(fluids::water));
+        simulation->m_sources.push_back(new GeneratingSource(fluids::liquid1, 6000., 200.,
+                                            Eigen::Vector3d(0., 5.,0.), 0.1,
+                                            Eigen::Vector3d(0.1,-0.3, -0.5), 0.0));
+        simulation->m_sources.back()->init();
+        simulation->m_sources.push_back(new GeneratingSource(fluids::liquid2, 1500., 50.,
+                                            Eigen::Vector3d(-2., 5.,1.0), 0.1,
+                                            Eigen::Vector3d(1.,-0.5, -1.), 0.0));
         simulation->m_sources.back()->init();
 
         // Boundary particles
         m_boundary_particles_path = "../../data/water_glass_2.xyz";
         string bottom = "../../data/bottom_2.xyz";
+        string waterParticles = "../../data/init_water.xyz";
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, m_boundary_particles_path));
         simulation->m_sources.back()->init();
 
         simulation->m_sources.push_back(new CustomSource(fluids::boundary, bottom));
         simulation->m_sources.back()->init();
 
-        // Setup bounding box for scene
-        m_scene_max << 2., 5., 2.;
-        m_scene_min << -2., 0., -2.;
-        simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
+        simulation->m_sources.push_back(new CustomSource(fluids::water, waterParticles));
+        simulation->m_sources.back()->init();
 
+        // Setup bounding box for scene
+        m_scene_max << 2.5, 6., 2.5;
+        m_scene_min << -2.5, 0., -2.5;
+        simulation->setScene(new BoxScene(m_scene_min, m_scene_max));
 
         // Start GUI
         start();

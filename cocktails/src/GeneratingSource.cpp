@@ -1,10 +1,10 @@
 #include "../include/GeneratingSource.h"
 
 GeneratingSource::GeneratingSource(Fluid *fluid) : Source(fluid) {
-    m_particlesPerSecond = 50;
+    m_particlesPerSecond = 200;
     m_maxParticles = 3000;
 
-    m_position << 0, 3, 0;
+    m_position << 0., 5., 0.;
     m_positionStdDeviation = 0.1;
     m_particleVelocity << 0.0, -0.5, 0.0;
     m_particleVelocityStdDeviation = 0;
@@ -15,6 +15,13 @@ GeneratingSource::GeneratingSource(Fluid *fluid) : Source(fluid) {
     m_gen = std::mt19937(rd());
 
 }
+
+GeneratingSource::GeneratingSource(Fluid *fluid, int maxParticles, int particlesPerSecond,
+                                   const Eigen::Vector3d& pos, double posStd, 
+                                   const Eigen::Vector3d& vel, double velStd) 
+    : Source(fluid), m_maxParticles(maxParticles), m_particlesPerSecond(particlesPerSecond),
+      m_position(pos), m_positionStdDeviation(posStd),
+      m_particleVelocity(vel), m_particleVelocityStdDeviation(velStd) {}
 
 void GeneratingSource::init() {
     m_particleCount = 0;

@@ -21,6 +21,10 @@ public:
 
     explicit GeneratingSource(Fluid *fluid);
 
+    GeneratingSource(Fluid *fluid, int maxParticles, int particlesPerSecond,
+                                   const Eigen::Vector3d& pos, double posStd, 
+                                   const Eigen::Vector3d& vel, double velStd);
+
     void init() override;
 
     bool advance(double t) override;
